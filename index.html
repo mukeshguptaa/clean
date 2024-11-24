@@ -6,14 +6,15 @@
     <title>Clean Time</title>
     <style>
         :root {
-            --primary: #262626;
-            --secondary: #707070;
-            --background: #f5f5f5;
-            --card-bg: #ffffff;
-            --spacing: 1.5rem;
-            --spacing-small: 0.75rem;
-            --border-radius: 0.75rem;
-            --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            /* Tesla-inspired color palette */
+            --primary: #ffffff;
+            --secondary: #808080;
+            --background: #000000;
+            --card-bg: rgba(23, 23, 23, 0.8);
+            --accent: #ffffff;
+            --border-color: rgba(255, 255, 255, 0.1);
+            --border-radius: 0px;
+            --box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
         }
 
         * {
@@ -28,124 +29,214 @@
             align-items: center;
             justify-content: center;
             min-height: 100vh;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "Gotham SSm", Arial, sans-serif;
             text-align: center;
             background-color: var(--background);
             color: var(--primary);
-            padding: var(--spacing);
+            padding: 0.75rem;
             line-height: 1.5;
-        }
-
-        .card {
-            background: var(--card-bg);
-            border-radius: var(--border-radius);
-            box-shadow: var(--box-shadow);
-            padding: var(--spacing);
-            width: 100%;
-            max-width: 22rem;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
         }
 
         .timer {
-            font-size: 1rem;
-            font-weight: 400;
-            margin-bottom: var(--spacing-small);
+            font-size: 0.875rem;
+            font-weight: 300;
+            margin-bottom: 1.5rem;
             color: var(--primary);
-            overflow-wrap: break-word;
-            word-break: break-word;
+            width: 100%;
+            max-width: 250px;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
         }
 
-        .timer span {
-            display: block;
-            font-size: 1.5rem;
-            font-weight: 300;
-            letter-spacing: -0.5px;
-            margin-top: 0.25rem;
-            white-space: normal;
+        .timer-table {
+            width: 100%;
+            margin: 1.5rem auto;
+            border-collapse: separate;
+            border-spacing: 0;
+            text-align: left;
+            font-size: 0.875rem;
+            background: var(--card-bg);
+            overflow: hidden;
+            backdrop-filter: blur(20px);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .timer-table:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--box-shadow);
+        }
+
+        .timer-table td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border-color);
+            transition: background-color 0.2s ease;
+        }
+
+        .timer-table tr:hover td {
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+
+        .timer-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .timer-table td:first-child {
+            font-weight: 500;
+            text-align: right;
+            width: 40%;
+            font-feature-settings: "tnum";
+            font-variant-numeric: tabular-nums;
+            letter-spacing: 0.05em;
+            color: var(--accent);
         }
 
         .button {
             appearance: none;
-            border: 1px solid var(--primary);
+            border: 2px solid var(--accent);
             background: transparent;
-            padding: 0.75rem 1.25rem;
+            padding: 1rem 1.5rem;
             font-size: 0.875rem;
             cursor: pointer;
-            transition: all 0.2s ease;
-            color: var(--primary);
+            transition: all 0.3s ease;
+            color: var(--accent);
             width: 100%;
-            max-width: 16rem;
-            margin: var(--spacing-small) 0;
-            border-radius: 5px;
+            max-width: 250px;
+            margin: 1.5rem 0;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            font-weight: 500;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .button::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--accent);
+            transform: scaleX(0);
+            transform-origin: right;
+            transition: transform 0.3s ease;
+            z-index: -1;
         }
 
         .button:hover {
-            background: var(--primary);
-            color: var(--card-bg);
+            color: var(--background);
+        }
+
+        .button:hover::after {
+            transform: scaleX(1);
+            transform-origin: left;
         }
 
         .timestamp {
             font-size: 0.75rem;
             color: var(--secondary);
-            margin-top: var(--spacing-small);
-            overflow-wrap: break-word;
+            margin-top: 1.5rem;
+            max-width: 250px;
+            letter-spacing: 0.05em;
+            font-weight: 300;
         }
 
-        @media (min-width: 640px) {
-            .card {
-                max-width: 28rem;
-                padding: calc(var(--spacing) * 1.25);
-            }
+        /* Tablet and small desktop screens */
+        @media (min-width: 768px) {
             .timer {
-                font-size: 1.125rem;
-            }
-            .timer span {
-                font-size: 1.75rem;
-            }
-            .button {
-                padding: 1rem 1.75rem;
                 font-size: 1rem;
+                max-width: 400px;
             }
+
+            .timer-table {
+                font-size: 1.125rem;
+                max-width: 400px;
+            }
+
+            .timer-table td {
+                padding: 1.25rem;
+            }
+
+            .button {
+                font-size: 1rem;
+                max-width: 400px;
+                padding: 1.25rem 2rem;
+            }
+
             .timestamp {
                 font-size: 0.875rem;
+                max-width: 400px;
             }
         }
 
-        @media (min-width: 1024px) {
-            .card {
-                max-width: 36rem;
-                padding: calc(var(--spacing) * 1.5);
-            }
+        /* Large desktop and TV screens */
+        @media (min-width: 1920px) {
             .timer {
                 font-size: 1.25rem;
+                max-width: 500px;
             }
-            .timer span {
-                font-size: 2rem;
+
+            .timer-table {
+                font-size: 1.5rem;
+                max-width: 500px;
             }
+
+            .timer-table td {
+                padding: 1.5rem;
+            }
+
             .button {
-                padding: 1.25rem 2rem;
-                font-size: 1.125rem;
+                font-size: 1.25rem;
+                max-width: 500px;
+                padding: 1.5rem 2.5rem;
             }
+
             .timestamp {
                 font-size: 1rem;
+                max-width: 500px;
             }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .timer, .timer-table, .button, .timestamp {
+            animation: fadeIn 0.6s ease-out forwards;
         }
     </style>
 </head>
 <body>
-    <div class="card">
-        <div class="timer" id="timer">
-            You have been clean for
-            <span id="timerSpan">0 years, 0 months, 0 days, 0 hours, 0 minutes, and 0 seconds</span>
-        </div>
-        <button id="pledgeButton" class="button">I pledge to stay clean till I die</button>
-        <div id="timestamp" class="timestamp"></div>
+    <div class="timer" id="timer">
+        You have been clean for
+        <table class="timer-table">
+            <tr><td id="years">00</td><td>Years</td></tr>
+            <tr><td id="months">00</td><td>Months</td></tr>
+            <tr><td id="days">00</td><td>Days</td></tr>
+            <tr><td id="hours">00</td><td>Hours</td></tr>
+            <tr><td id="minutes">00</td><td>Minutes</td></tr>
+            <tr><td id="seconds">00</td><td>Seconds</td></tr>
+        </table>
     </div>
+    <button id="pledgeButton" class="button">I pledge to stay clean till I die</button>
+    <div id="timestamp" class="timestamp"></div>
 
     <script>
-        const timerElement = document.getElementById('timerSpan');
+        const yearsElement = document.getElementById('years');
+        const monthsElement = document.getElementById('months');
+        const daysElement = document.getElementById('days');
+        const hoursElement = document.getElementById('hours');
+        const minutesElement = document.getElementById('minutes');
+        const secondsElement = document.getElementById('seconds');
         const buttonElement = document.getElementById('pledgeButton');
         const timestampElement = document.getElementById('timestamp');
 
@@ -161,24 +252,35 @@
             const months = Math.floor(diff / (86400000 * 30)) % 12;
             const years = Math.floor(diff / (86400000 * 365));
 
-            const parts = [
-                years && `${years} year${years !== 1 ? 's' : ''}`,
-                months && `${months} month${months !== 1 ? 's' : ''}`,
-                days && `${days} day${days !== 1 ? 's' : ''}`,
-                hours && `${hours} hour${hours !== 1 ? 's' : ''}`,
-                minutes && `${minutes} minute${minutes !== 1 ? 's' : ''}`,
-                seconds && `${seconds} second${seconds !== 1 ? 's' : ''}`
-            ].filter(Boolean);
-
-            timerElement.textContent = parts.join(', ');
+            yearsElement.parentElement.style.display = years === 0 ? 'none' : 'table-row';
+            yearsElement.textContent = String(years).padStart(2, '0');
+            monthsElement.parentElement.style.display = months === 0 ? 'none' : 'table-row';
+            monthsElement.textContent = String(months).padStart(2, '0');
+            daysElement.parentElement.style.display = days === 0 ? 'none' : 'table-row';
+            daysElement.textContent = String(days).padStart(2, '0');
+            hoursElement.parentElement.style.display = hours === 0 ? 'none' : 'table-row';
+            hoursElement.textContent = String(hours).padStart(2, '0');
+            minutesElement.parentElement.style.display = minutes === 0 ? 'none' : 'table-row';
+            minutesElement.textContent = String(minutes).padStart(2, '0');
+            secondsElement.parentElement.style.display = seconds === 0 ? 'none' : 'table-row';
+            secondsElement.textContent = String(seconds).padStart(2, '0');
         }
 
         function updateTimestamp(text) {
-            timestampElement.innerHTML = `${text}<br>${startTime.toLocaleString('en-IN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', minute: 'numeric', second: 'numeric', hour12: true })}`;
+            timestampElement.innerHTML = `${text}<br>${startTime.toLocaleString('en-IN', { 
+                weekday: 'long', 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric', 
+                hour: 'numeric', 
+                minute: 'numeric', 
+                second: 'numeric', 
+                hour12: true 
+            })}`;
         }
 
         function startTimer() {
-            updateTimer(); // Initial update to avoid default state
+            updateTimer();
             intervalId = setInterval(updateTimer, 1000);
         }
 
@@ -199,4 +301,3 @@
     </script>
 </body>
 </html>
-
