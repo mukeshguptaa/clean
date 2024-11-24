@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Clean Time</title>
+    
     <style>
-        :root {
-            /* Tesla-inspired color palette */
+        :root[data-theme="dark"] {
             --primary: #ffffff;
             --secondary: #808080;
             --background: #000000;
@@ -15,8 +15,54 @@
             --border-color: rgba(255, 255, 255, 0.1);
             --border-radius: 0px;
             --box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+            --theme-icon: "🌞";
         }
 
+        :root[data-theme="light"] {
+            --primary: #000000;
+            --secondary: #505050;
+            --background: #ffffff;
+            --card-bg: rgba(245, 245, 245, 0.8);
+            --accent: #000000;
+            --border-color: rgba(0, 0, 0, 0.1);
+            --border-radius: 0px;
+            --box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            --theme-icon: "🌙";
+        }
+
+        /* Theme toggle button styles */
+        .theme-toggle {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            padding: 0.5rem;
+            font-size: 1.5rem;
+            background: none;
+            border: none;
+            cursor: pointer;
+            z-index: 1000;
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.3s ease;
+            border-radius: 50%;
+        }
+
+        .theme-toggle:hover {
+            transform: scale(1.1);
+        }
+
+        [data-theme="dark"] .theme-toggle {
+            color: var(--primary);
+        }
+
+        [data-theme="light"] .theme-toggle {
+            color: var(--primary);
+        }
+
+        /* Your existing styles */
         * {
             margin: 0;
             padding: 0;
@@ -37,8 +83,10 @@
             line-height: 1.5;
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
+            transition: background-color 0.3s ease, color 0.3s ease;
         }
 
+        /* Rest of your existing styles remain exactly the same */
         .timer {
             font-size: 0.875rem;
             font-weight: 300;
@@ -60,7 +108,7 @@
             background: var(--card-bg);
             overflow: hidden;
             backdrop-filter: blur(20px);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            transition: transform 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease;
         }
 
         .timer-table:hover {
@@ -75,7 +123,7 @@
         }
 
         .timer-table tr:hover td {
-            background-color: rgba(255, 255, 255, 0.05);
+            background-color: rgba(128, 128, 128, 0.05);
         }
 
         .timer-table tr:last-child td {
@@ -143,7 +191,7 @@
             font-weight: 300;
         }
 
-        /* Tablet and small desktop screens */
+        /* Your existing media queries remain the same */
         @media (min-width: 768px) {
             .timer {
                 font-size: 1rem;
@@ -171,7 +219,6 @@
             }
         }
 
-        /* Large desktop and TV screens */
         @media (min-width: 1920px) {
             .timer {
                 font-size: 1.25rem;
@@ -214,23 +261,57 @@
             animation: fadeIn 0.6s ease-out forwards;
         }
     </style>
-</head>
-<body>
-    <div class="timer" id="timer">
-        You have been clean for
-        <table class="timer-table">
-            <tr><td id="years">00</td><td>Years</td></tr>
-            <tr><td id="months">00</td><td>Months</td></tr>
-            <tr><td id="days">00</td><td>Days</td></tr>
-            <tr><td id="hours">00</td><td>Hours</td></tr>
-            <tr><td id="minutes">00</td><td>Minutes</td></tr>
-            <tr><td id="seconds">00</td><td>Seconds</td></tr>
-        </table>
-    </div>
-    <button id="pledgeButton" class="button">I pledge to stay clean till I die</button>
-    <div id="timestamp" class="timestamp"></div>
 
-    <script>
+    <!-- Firebase Integration -->
+    <script type="module">
+        // Import the functions you need from the SDKs you need
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
+        import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
+
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyBQ8OzGLZB_yeLAdXP8PjraGxzcw-iC3r0",
+            authDomain: "clean-e39a8.firebaseapp.com",
+            databaseURL: "https://clean-e39a8-default-rtdb.firebaseio.com",
+            projectId: "clean-e39a8",
+            storageBucket: "clean-e39a8.firebasestorage.app",
+            messagingSenderId: "788883487803",
+            appId: "1:788883487803:web:771ed94ea3149303dfb01e"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        // Theme toggle functionality
+        const root = document.documentElement;
+        const themeToggle = document.getElementById('themeToggle');
+        const THEME_KEY = 'preferred-theme';
+
+        // Load saved theme from localStorage
+        const savedTheme = localStorage.getItem(THEME_KEY) || 'dark';
+        root.setAttribute('data-theme', savedTheme);
+
+        function toggleTheme() {
+            const currentTheme = root.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            root.setAttribute('data-theme', newTheme);
+            localStorage.setItem(THEME_KEY, newTheme);
+            updateThemeIcon();
+        }
+
+        function updateThemeIcon() {
+            const currentTheme = root.getAttribute('data-theme');
+            themeToggle.textContent = currentTheme === 'dark' ? '🌞' : '🌙';
+        }
+
+        // Initialize theme icon
+        updateThemeIcon();
+
+        // Add click event listener to theme toggle button
+        themeToggle.addEventListener('click', toggleTheme);
+
+        // Timer functionality
         const yearsElement = document.getElementById('years');
         const monthsElement = document.getElementById('months');
         const daysElement = document.getElementById('days');
@@ -240,10 +321,12 @@
         const buttonElement = document.getElementById('pledgeButton');
         const timestampElement = document.getElementById('timestamp');
 
-        let startTime = localStorage.getItem('startTime') ? new Date(localStorage.getItem('startTime')) : null;
+        let startTime = null;
         let intervalId = null;
 
         function updateTimer() {
+            if (!startTime) return;
+            
             const diff = new Date() - startTime;
             const seconds = Math.floor(diff / 1000) % 60;
             const minutes = Math.floor(diff / 60000) % 60;
@@ -267,6 +350,7 @@
         }
 
         function updateTimestamp(text) {
+            if (!startTime) return;
             timestampElement.innerHTML = `${text}<br>${startTime.toLocaleString('en-IN', { 
                 weekday: 'long', 
                 year: 'numeric', 
@@ -280,24 +364,51 @@
         }
 
         function startTimer() {
+            if (intervalId) clearInterval(intervalId);
             updateTimer();
             intervalId = setInterval(updateTimer, 1000);
         }
 
-        if (startTime) {
-            updateTimestamp('You took the pledge on');
-            buttonElement.innerText = 'I broke my pledge, start again';
-            startTimer();
-        }
+        // Load the start time from Firebase when the page loads
+        const timeRef = ref(db, 'timer/startTime');
+        onValue(timeRef, (snapshot) => {
+            const savedTime = snapshot.val();
+            if (savedTime) {
+                startTime = new Date(savedTime);
+                updateTimestamp('You took the pledge on');
+                buttonElement.innerText = 'I broke my pledge, start again';
+                startTimer();
+            }
+        });
 
         buttonElement.addEventListener('click', () => {
-            clearInterval(intervalId);
             startTime = new Date();
-            localStorage.setItem('startTime', startTime);
+            
+            // Save to Firebase
+            set(ref(db, 'timer'), {
+                startTime: startTime.toISOString()
+            });
+            
             updateTimestamp('You took the pledge on');
             buttonElement.innerText = 'I broke my pledge, start again';
             startTimer();
         });
     </script>
+</head>
+<body>
+    <button id="themeToggle" class="theme-toggle" aria-label="Toggle theme"></button>
+    <div class="timer" id="timer">
+        You have been clean for
+        <table class="timer-table">
+            <tr><td id="years">00</td><td>Years</td></tr>
+            <tr><td id="months">00</td><td>Months</td></tr>
+            <tr><td id="days">00</td><td>Days</td></tr>
+            <tr><td id="hours">00</td><td>Hours</td></tr>
+            <tr><td id="minutes">00</td><td>Minutes</td></tr>
+            <tr><td id="seconds">00</td><td>Seconds</td></tr>
+        </table>
+    </div>
+    <button id="pledgeButton" class="button">I pledge to stay clean till I die</button>
+    <div id="timestamp" class="timestamp"></div>
 </body>
 </html>
