@@ -15,7 +15,6 @@
             --border-color: rgba(255, 255, 255, 0.1);
             --border-radius: 0px;
             --box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
-            --theme-icon: "🌞";
         }
 
         :root[data-theme="light"] {
@@ -27,42 +26,8 @@
             --border-color: rgba(0, 0, 0, 0.1);
             --border-radius: 0px;
             --box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-            --theme-icon: "🌙";
         }
 
-        /* Theme toggle button styles */
-        .theme-toggle {
-            position: fixed;
-            top: 1rem;
-            right: 1rem;
-            padding: 0.5rem;
-            font-size: 1.5rem;
-            background: none;
-            border: none;
-            cursor: pointer;
-            z-index: 1000;
-            width: 48px;
-            height: 48px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: transform 0.3s ease;
-            border-radius: 50%;
-        }
-
-        .theme-toggle:hover {
-            transform: scale(1.1);
-        }
-
-        [data-theme="dark"] .theme-toggle {
-            color: var(--primary);
-        }
-
-        [data-theme="light"] .theme-toggle {
-            color: var(--primary);
-        }
-
-        /* Your existing styles */
         * {
             margin: 0;
             padding: 0;
@@ -86,16 +51,120 @@
             transition: background-color 0.3s ease, color 0.3s ease;
         }
 
-        /* Rest of your existing styles remain exactly the same */
+        /* Theme toggle button styles */
+        .theme-toggle {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            padding: 0.5rem;
+            background: none;
+            border: none;
+            cursor: pointer;
+            z-index: 1000;
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.3s ease;
+            border-radius: 50%;
+        }
+
+        .theme-toggle:hover {
+            transform: scale(1.1);
+        }
+
+        .theme-toggle svg {
+            width: 24px;
+            height: 24px;
+            transition: stroke 0.3s ease, opacity 0.3s ease;
+            position: absolute;
+        }
+
+        .theme-toggle .sun-icon {
+            stroke: var(--primary);
+            opacity: 0;
+        }
+
+        .theme-toggle .moon-icon {
+            stroke: var(--primary);
+            opacity: 1;
+        }
+
+        [data-theme="dark"] .theme-toggle .sun-icon {
+            opacity: 1;
+        }
+
+        [data-theme="dark"] .theme-toggle .moon-icon {
+            opacity: 0;
+        }
+
+        /* Welcome screen styles */
+        .welcome-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: var(--background);
+            z-index: 2000;
+            opacity: 1;
+            transition: opacity 0.6s ease-out;
+        }
+
+        .welcome-text {
+            font-size: 0.875rem;
+            font-weight: 300;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            opacity: 1;
+            transform: translateY(0);
+            transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+        }
+
+        .welcome-screen.fade-out {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .welcome-text.fade-out {
+            opacity: 0;
+            transform: translateY(-20px);
+        }
+
+        /* Main content styles */
+        .main-content {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.6s ease-out 0.3s, transform 0.6s ease-out 0.3s;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .main-content.fade-in {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
         .timer {
             font-size: 0.875rem;
             font-weight: 300;
-            margin-bottom: 1.5rem;
+            margin: 0 auto 1.5rem;
             color: var(--primary);
             width: 100%;
             max-width: 250px;
             letter-spacing: 0.05em;
             text-transform: uppercase;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            white-space: normal; /* Added to allow wrapping */
+            line-height: 1.4; /* Added to improve readability */
         }
 
         .timer-table {
@@ -103,12 +172,12 @@
             margin: 1.5rem auto;
             border-collapse: separate;
             border-spacing: 0;
-            text-align: left;
             font-size: 0.875rem;
             background: var(--card-bg);
             overflow: hidden;
             backdrop-filter: blur(20px);
             transition: transform 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease;
+            table-layout: fixed;
         }
 
         .timer-table:hover {
@@ -116,10 +185,44 @@
             box-shadow: var(--box-shadow);
         }
 
+        .timer-table tr {
+            opacity: 1;
+            transform: translateY(10px);
+            transition: all 0.3s ease-out;
+        }
+
+        .timer-table tr.zero-value {
+            opacity: 0.5;
+        }
+
+        .timer-table.animate tr {
+            animation: fadeIn 0.4s ease-out forwards;
+        }
+
         .timer-table td {
             padding: 1rem;
             border-bottom: 1px solid var(--border-color);
-            transition: background-color 0.2s ease;
+            transition: all 0.3s ease-out;
+            vertical-align: middle;
+        }
+
+        .timer-table td:first-child {
+            font-weight: 500;
+            text-align: right;
+            width: 40%;
+            padding-right: 2rem;
+            font-feature-settings: "tnum";
+            font-variant-numeric: tabular-nums;
+            letter-spacing: 0.05em;
+            color: var(--accent);
+        }
+
+        .timer-table td:last-child {
+            text-align: left;
+            width: 60%;
+            padding-left: 2rem;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
         }
 
         .timer-table tr:hover td {
@@ -130,15 +233,26 @@
             border-bottom: none;
         }
 
-        .timer-table td:first-child {
-            font-weight: 500;
-            text-align: right;
-            width: 40%;
-            font-feature-settings: "tnum";
-            font-variant-numeric: tabular-nums;
-            letter-spacing: 0.05em;
-            color: var(--accent);
+        /* Modified heartbeat animation */
+        @keyframes heartbeat {
+            0%, 100% { 
+                background-color: transparent; 
+            }
+            50% { 
+                background-color: rgba(34, 197, 94, 0.08); 
+            }
         }
+
+        .timer-table tr.heartbeat td {
+            animation: heartbeat 1s ease-in-out infinite;
+        }
+
+        .timer-table.animate tr:nth-child(1) { animation-delay: 0.1s; }
+        .timer-table.animate tr:nth-child(2) { animation-delay: 0.2s; }
+        .timer-table.animate tr:nth-child(3) { animation-delay: 0.3s; }
+        .timer-table.animate tr:nth-child(4) { animation-delay: 0.4s; }
+        .timer-table.animate tr:nth-child(5) { animation-delay: 0.5s; }
+        .timer-table.animate tr:nth-child(6) { animation-delay: 0.6s; }
 
         .button {
             appearance: none;
@@ -149,14 +263,20 @@
             cursor: pointer;
             transition: all 0.3s ease;
             color: var(--accent);
-            width: 100%;
-            max-width: 250px;
-            margin: 1.5rem 0;
+            margin: 1.5rem auto;
             text-transform: uppercase;
             letter-spacing: 0.1em;
             font-weight: 500;
             position: relative;
             overflow: hidden;
+            width: 250px;
+            white-space: normal; /* Changed from nowrap to normal */
+            min-height: 60px; /* Added to ensure enough height for wrapped text */
+            line-height: 1.2; /* Added to improve readability of wrapped text */
+            display: flex; /* Changed from block */
+            align-items: center;
+            justify-content: center;
+            text-align: center; /* Added to ensure centered text */
         }
 
         .button::after {
@@ -185,13 +305,34 @@
         .timestamp {
             font-size: 0.75rem;
             color: var(--secondary);
-            margin-top: 1.5rem;
-            max-width: 250px;
+            margin: 1.5rem auto;
+            min-width: 250px;
             letter-spacing: 0.05em;
             font-weight: 300;
+            white-space: normal;
+            overflow-x: auto;
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+            text-align: center;
+            display: block;
+            line-height: 1.4;
         }
 
-        /* Your existing media queries remain the same */
+        .timestamp::-webkit-scrollbar {
+            display: none;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
         @media (min-width: 768px) {
             .timer {
                 font-size: 1rem;
@@ -209,13 +350,14 @@
 
             .button {
                 font-size: 1rem;
-                max-width: 400px;
+                width: 400px;
                 padding: 1.25rem 2rem;
+                min-height: 70px;
             }
 
             .timestamp {
                 font-size: 0.875rem;
-                max-width: 400px;
+                min-width: 400px;
             }
         }
 
@@ -236,39 +378,67 @@
 
             .button {
                 font-size: 1.25rem;
-                max-width: 500px;
+                width: 500px;
                 padding: 1.5rem 2.5rem;
+                min-height: 80px;
             }
 
             .timestamp {
                 font-size: 1rem;
-                max-width: 500px;
+                min-width: 500px;
             }
-        }
-
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .timer, .timer-table, .button, .timestamp {
-            animation: fadeIn 0.6s ease-out forwards;
         }
     </style>
+</head>
+<body>
+    <!-- Theme toggle button -->
+    <button id="themeToggle" class="theme-toggle" aria-label="Toggle theme">
+        <!-- Sun icon -->
+        <svg class="sun-icon" viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="4"></circle>
+            <path d="M12 2v2"></path>
+            <path d="M12 20v2"></path>
+            <path d="M4.93 4.93l1.41 1.41"></path>
+            <path d="M17.66 17.66l1.41 1.41"></path>
+            <path d="M2 12h2"></path>
+            <path d="M20 12h2"></path>
+            <path d="M6.34 17.66l-1.41 1.41"></path>
+            <path d="M19.07 4.93l-1.41 1.41"></path>
+        </svg>
+        <!-- Moon icon -->
+        <svg class="moon-icon" viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+        </svg>
+    </button>
 
-    <!-- Firebase Integration -->
+    <!-- Welcome screen -->
+    <div class="welcome-screen">
+        <div class="welcome-text">WELCOME</div>
+    </div>
+
+    <!-- Main content -->
+    <div class="main-content">
+        <div class="timer" id="timer">
+            You have been clean for
+            <table class="timer-table">
+                <tr><td id="years">00</td><td>Years</td></tr>
+                <tr><td id="months">00</td><td>Months</td></tr>
+                <tr><td id="days">00</td><td>Days</td></tr>
+                <tr><td id="hours">00</td><td>Hours</td></tr>
+                <tr><td id="minutes">00</td><td>Minutes</td></tr>
+                <tr><td id="seconds">00</td><td>Seconds</td></tr>
+            </table>
+        </div>
+        <button id="pledgeButton" class="button">I pledge to stay clean till I die</button>
+        <div id="timestamp" class="timestamp"></div>
+    </div>
+
     <script type="module">
-        // Import the functions you need from the SDKs you need
+        // Import Firebase SDK
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
         import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
 
-        // Your web app's Firebase configuration
+        // Firebase configuration
         const firebaseConfig = {
             apiKey: "AIzaSyBQ8OzGLZB_yeLAdXP8PjraGxzcw-iC3r0",
             authDomain: "clean-e39a8.firebaseapp.com",
@@ -288,7 +458,6 @@
         const themeToggle = document.getElementById('themeToggle');
         const THEME_KEY = 'preferred-theme';
 
-        // Load saved theme from localStorage
         const savedTheme = localStorage.getItem(THEME_KEY) || 'dark';
         root.setAttribute('data-theme', savedTheme);
 
@@ -297,21 +466,15 @@
             const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
             root.setAttribute('data-theme', newTheme);
             localStorage.setItem(THEME_KEY, newTheme);
-            updateThemeIcon();
         }
 
-        function updateThemeIcon() {
-            const currentTheme = root.getAttribute('data-theme');
-            themeToggle.textContent = currentTheme === 'dark' ? '🌞' : '🌙';
-        }
-
-        // Initialize theme icon
-        updateThemeIcon();
-
-        // Add click event listener to theme toggle button
         themeToggle.addEventListener('click', toggleTheme);
 
-        // Timer functionality
+        // Animation and Timer Elements
+        const welcomeScreen = document.querySelector('.welcome-screen');
+        const welcomeText = document.querySelector('.welcome-text');
+        const mainContent = document.querySelector('.main-content');
+        const timerTable = document.querySelector('.timer-table');
         const yearsElement = document.getElementById('years');
         const monthsElement = document.getElementById('months');
         const daysElement = document.getElementById('days');
@@ -323,6 +486,32 @@
 
         let startTime = null;
         let intervalId = null;
+        let previousValues = {
+            years: 0,
+            months: 0,
+            days: 0,
+            hours: 0,
+            minutes: 0,
+            seconds: 0
+        };
+
+        // Welcome animation sequence
+        function startWelcomeSequence() {
+            setTimeout(() => {
+                welcomeText.classList.add('fade-out');
+                
+                setTimeout(() => {
+                    welcomeScreen.classList.add('fade-out');
+                    mainContent.classList.add('fade-in');
+                    
+                    setTimeout(() => {
+                        timerTable.classList.add('animate');
+                    }, 600);
+                    
+                    setTimeout(loadFirebaseData, 1000);
+                }, 600);
+            }, 1000);
+        }
 
         function updateTimer() {
             if (!startTime) return;
@@ -335,32 +524,68 @@
             const months = Math.floor(diff / (86400000 * 30)) % 12;
             const years = Math.floor(diff / (86400000 * 365));
 
-            yearsElement.parentElement.style.display = years === 0 ? 'none' : 'table-row';
-            yearsElement.textContent = String(years).padStart(2, '0');
-            monthsElement.parentElement.style.display = months === 0 ? 'none' : 'table-row';
-            monthsElement.textContent = String(months).padStart(2, '0');
-            daysElement.parentElement.style.display = days === 0 ? 'none' : 'table-row';
-            daysElement.textContent = String(days).padStart(2, '0');
-            hoursElement.parentElement.style.display = hours === 0 ? 'none' : 'table-row';
-            hoursElement.textContent = String(hours).padStart(2, '0');
-            minutesElement.parentElement.style.display = minutes === 0 ? 'none' : 'table-row';
-            minutesElement.textContent = String(minutes).padStart(2, '0');
-            secondsElement.parentElement.style.display = seconds === 0 ? 'none' : 'table-row';
-            secondsElement.textContent = String(seconds).padStart(2, '0');
+            function updateElement(element, value, parentElement, previousValue, unit) {
+                const newValue = String(value).padStart(2, '0');
+                const currentValue = parseInt(newValue);
+
+                // Update the display value
+                element.textContent = newValue;
+
+                // Always check and set zero-value class based on current value
+                if (currentValue === 0) {
+                    parentElement.classList.add('zero-value');
+                } else {
+                    parentElement.classList.remove('zero-value');
+                }
+
+                // Special handling for seconds - continuous breathing animation
+                if (unit === 'seconds') {
+                    if (!parentElement.classList.contains('heartbeat')) {
+                        parentElement.classList.add('heartbeat');
+                    }
+                } else if (element.textContent !== newValue) {
+                    // For other units, handle increment animation
+                    const hasIncreased = value > previousValue || 
+                        (unit === 'minutes' && previousValue === 59 && value === 0) ||
+                        (unit === 'hours' && previousValue === 23 && value === 0) ||
+                        (unit === 'days' && previousValue === 29 && value === 0) ||
+                        (unit === 'months' && previousValue === 11 && value === 0);
+
+                    if (hasIncreased) {
+                        parentElement.classList.remove('heartbeat');
+                        void parentElement.offsetWidth;
+                        parentElement.classList.add('heartbeat');
+                        setTimeout(() => {
+                            parentElement.classList.remove('heartbeat');
+                        }, 1000);
+                    }
+                }
+                
+                previousValues[unit] = value;
+            }
+
+            updateElement(yearsElement, years, yearsElement.parentElement, previousValues.years, 'years');
+            updateElement(monthsElement, months, monthsElement.parentElement, previousValues.months, 'months');
+            updateElement(daysElement, days, daysElement.parentElement, previousValues.days, 'days');
+            updateElement(hoursElement, hours, hoursElement.parentElement, previousValues.hours, 'hours');
+            updateElement(minutesElement, minutes, minutesElement.parentElement, previousValues.minutes, 'minutes');
+            updateElement(secondsElement, seconds, secondsElement.parentElement, previousValues.seconds, 'seconds');
         }
 
         function updateTimestamp(text) {
             if (!startTime) return;
-            timestampElement.innerHTML = `${text}<br>${startTime.toLocaleString('en-IN', { 
-                weekday: 'long', 
-                year: 'numeric', 
-                month: 'long', 
-                day: 'numeric', 
-                hour: 'numeric', 
-                minute: 'numeric', 
-                second: 'numeric', 
+            const formattedDate = startTime.toLocaleString('en-IN', { 
+                weekday: 'long',
+                day: 'numeric',
+                month: 'long',
+                year: 'numeric',
+                hour: 'numeric',
+                minute: 'numeric',
+                second: 'numeric',
                 hour12: true 
-            })}`;
+            });
+            timestampElement.textContent = `${text}\n${formattedDate}`;
+            timestampElement.style.whiteSpace = 'pre-line';
         }
 
         function startTimer() {
@@ -369,18 +594,21 @@
             intervalId = setInterval(updateTimer, 1000);
         }
 
-        // Load the start time from Firebase when the page loads
-        const timeRef = ref(db, 'timer/startTime');
-        onValue(timeRef, (snapshot) => {
-            const savedTime = snapshot.val();
-            if (savedTime) {
-                startTime = new Date(savedTime);
-                updateTimestamp('You took the pledge on');
-                buttonElement.innerText = 'I broke my pledge, start again';
-                startTimer();
-            }
-        });
+        // Firebase data loading
+        function loadFirebaseData() {
+            const timeRef = ref(db, 'timer/startTime');
+            onValue(timeRef, (snapshot) => {
+                const savedTime = snapshot.val();
+                if (savedTime) {
+                    startTime = new Date(savedTime);
+                    updateTimestamp('You took the pledge on');
+                    buttonElement.textContent = 'I broke my pledge, start again';
+                    startTimer();
+                }
+            });
+        }
 
+        // Button click handler
         buttonElement.addEventListener('click', () => {
             startTime = new Date();
             
@@ -390,25 +618,12 @@
             });
             
             updateTimestamp('You took the pledge on');
-            buttonElement.innerText = 'I broke my pledge, start again';
+            buttonElement.textContent = 'I broke my pledge, start again';
             startTimer();
         });
+
+        // Start the welcome sequence when the page loads
+        document.addEventListener('DOMContentLoaded', startWelcomeSequence);
     </script>
-</head>
-<body>
-    <button id="themeToggle" class="theme-toggle" aria-label="Toggle theme"></button>
-    <div class="timer" id="timer">
-        You have been clean for
-        <table class="timer-table">
-            <tr><td id="years">00</td><td>Years</td></tr>
-            <tr><td id="months">00</td><td>Months</td></tr>
-            <tr><td id="days">00</td><td>Days</td></tr>
-            <tr><td id="hours">00</td><td>Hours</td></tr>
-            <tr><td id="minutes">00</td><td>Minutes</td></tr>
-            <tr><td id="seconds">00</td><td>Seconds</td></tr>
-        </table>
-    </div>
-    <button id="pledgeButton" class="button">I pledge to stay clean till I die</button>
-    <div id="timestamp" class="timestamp"></div>
 </body>
 </html>
