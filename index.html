@@ -309,13 +309,13 @@
             min-width: 250px;
             letter-spacing: 0.05em;
             font-weight: 300;
-            white-space: normal;
+            white-space: pre-line;
             overflow-x: auto;
             -ms-overflow-style: none;
             scrollbar-width: none;
             text-align: center;
             display: block;
-            line-height: 1.4;
+            line-height: 1.6;
         }
 
         .timestamp::-webkit-scrollbar {
@@ -531,20 +531,32 @@
                 // Update the display value
                 element.textContent = newValue;
 
-                // Always check and set zero-value class based on current value
+                // Hide rows with zero values, except seconds which should always show
+                if (unit !== 'seconds') {
+                    if (currentValue === 0 && 
+                        // Only hide if all larger units are also zero
+                        (unit === 'minutes' || (unit === 'hours' && days === 0 && months === 0 && years === 0) ||
+                         (unit === 'days' && months === 0 && years === 0) ||
+                         (unit === 'months' && years === 0) ||
+                         unit === 'years')) {
+                        parentElement.style.display = 'none';
+                    } else {
+                        parentElement.style.display = '';
+                    }
+                }
+
+                // Rest of your existing animation logic
                 if (currentValue === 0) {
                     parentElement.classList.add('zero-value');
                 } else {
                     parentElement.classList.remove('zero-value');
                 }
 
-                // Special handling for seconds - continuous breathing animation
                 if (unit === 'seconds') {
                     if (!parentElement.classList.contains('heartbeat')) {
                         parentElement.classList.add('heartbeat');
                     }
                 } else if (element.textContent !== newValue) {
-                    // For other units, handle increment animation
                     const hasIncreased = value > previousValue || 
                         (unit === 'minutes' && previousValue === 59 && value === 0) ||
                         (unit === 'hours' && previousValue === 23 && value === 0) ||
@@ -584,8 +596,9 @@
                 second: 'numeric',
                 hour12: true 
             });
-            timestampElement.textContent = `${text}\n${formattedDate}`;
-            timestampElement.style.whiteSpace = 'pre-line';
+            // Split the text exactly after "on"
+            const prefix = text.endsWith('on') ? text : `${text} on`;
+            timestampElement.innerHTML = `${prefix}<br>${formattedDate}`;
         }
 
         function startTimer() {
