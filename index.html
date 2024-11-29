@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Clean Time</title>
-    
     <style>
         :root[data-theme="dark"] {
             --primary: #ffffff;
@@ -44,14 +43,13 @@
             text-align: center;
             background-color: var(--background);
             color: var(--primary);
-            padding: 0.75rem;
+            padding: 0;
             line-height: 1.5;
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
             transition: background-color 0.3s ease, color 0.3s ease;
         }
 
-        /* Theme toggle button styles */
         .theme-toggle {
             position: fixed;
             top: 1rem;
@@ -99,7 +97,6 @@
             opacity: 0;
         }
 
-        /* Welcome screen styles */
         .welcome-screen {
             position: fixed;
             top: 0;
@@ -112,7 +109,7 @@
             background-color: var(--background);
             z-index: 2000;
             opacity: 1;
-            transition: opacity 0.6s ease-out;
+            transition: opacity 0.8s ease-out;
         }
 
         .welcome-text {
@@ -122,7 +119,7 @@
             text-transform: uppercase;
             opacity: 1;
             transform: translateY(0);
-            transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+            transition: opacity 0.8s ease-out, transform 0.8s ease-out;
         }
 
         .welcome-screen.fade-out {
@@ -135,26 +132,27 @@
             transform: translateY(-20px);
         }
 
-        /* Main content styles */
         .main-content {
             opacity: 0;
             transform: translateY(20px);
-            transition: opacity 0.6s ease-out 0.3s, transform 0.6s ease-out 0.3s;
+            transition: opacity 0.8s ease-out, transform 0.8s ease-out;
             width: 100%;
             display: flex;
             flex-direction: column;
             align-items: center;
+            visibility: visible;
+            position: relative;
         }
 
         .main-content.fade-in {
             opacity: 1;
             transform: translateY(0);
         }
-        /* Timer and table styles */
+
         .timer {
             font-size: 0.875rem;
             font-weight: 300;
-            margin: 0 auto 1.5rem;
+            margin: 0 auto 0.5rem;
             color: var(--primary);
             width: 100%;
             max-width: 250px;
@@ -178,6 +176,8 @@
             backdrop-filter: blur(20px);
             transition: transform 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease;
             table-layout: fixed;
+            opacity: 0;
+            transition: opacity 0.8s ease-out;
         }
 
         .timer-table:hover {
@@ -186,8 +186,7 @@
         }
 
         .timer-table tr {
-            opacity: 1;
-            transform: translateY(10px);
+            position: relative;
             transition: all 0.3s ease-out;
         }
 
@@ -195,15 +194,12 @@
             opacity: 0.5;
         }
 
-        .timer-table.animate tr {
-            animation: fadeIn 0.4s ease-out forwards;
-        }
-
         .timer-table td {
             padding: 1rem;
             border-bottom: 1px solid var(--border-color);
             transition: all 0.3s ease-out;
             vertical-align: middle;
+            position: relative;
         }
 
         .timer-table td:first-child {
@@ -225,11 +221,14 @@
             text-transform: uppercase;
         }
 
-        /* History section styles */
+        .timer-table.visible {
+            opacity: 1;
+        }
+
         .history-section {
             width: 100%;
             max-width: 250px;
-            margin: 2rem auto;
+            margin: 1rem auto;
             opacity: 0;
             transform: translateY(20px);
             transition: opacity 0.6s ease-out, transform 0.6s ease-out;
@@ -290,7 +289,6 @@
             margin-bottom: 0.25rem;
         }
 
-        /* PIN Modal styles */
         .modal {
             display: none;
             position: fixed;
@@ -367,7 +365,6 @@
             min-height: 1.25rem;
         }
 
-        /* Button and timestamp styles */
         .button {
             appearance: none;
             border: 2px solid var(--accent);
@@ -377,7 +374,7 @@
             cursor: pointer;
             transition: all 0.3s ease;
             color: var(--accent);
-            margin: 1.5rem auto;
+            margin: 1rem auto;
             text-transform: uppercase;
             letter-spacing: 0.1em;
             font-weight: 500;
@@ -419,7 +416,7 @@
         .timestamp {
             font-size: 0.75rem;
             color: var(--secondary);
-            margin: 1.5rem auto;
+            margin: 1rem auto;
             min-width: 250px;
             letter-spacing: 0.05em;
             font-weight: 300;
@@ -436,28 +433,38 @@
             display: none;
         }
 
-        /* Animations */
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
         @keyframes heartbeat {
-            0%, 100% { 
+            0% { 
                 background-color: transparent; 
             }
             50% { 
-                background-color: rgba(34, 197, 94, 0.08); 
+                background-color: rgba(34, 197, 94, 0.2);
+            }
+            100% { 
+                background-color: transparent; 
             }
         }
 
-        /* Responsive styles */
+        .timer-table tr {
+            position: relative;
+            z-index: 1;
+        }
+
+        .timer-table tr.heartbeat td {
+            position: relative;
+        }
+
+        .timer-table tr.heartbeat td::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: -1;
+            animation: heartbeat 0.6s ease-in-out;
+        }
+
         @media (min-width: 768px) {
             .timer {
                 font-size: 1rem;
@@ -533,106 +540,117 @@
                 max-height: 300px;
             }
         }
+
+        .history-toggle {
+            width: 100%;
+            padding: 0.75rem;
+            background: var(--card-bg);
+            color: var(--primary);
+            border: none;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            transition: all 0.3s ease;
+            margin-bottom: 1rem;
+        }
+
+        .history-toggle:hover {
+            background: var(--accent);
+            color: var(--background);
+        }
+
+        .history-list.hidden {
+            display: none;
+        }
     </style>
-    </head>
-    <body>
-        <!-- Theme toggle button -->
-        <button id="themeToggle" class="theme-toggle" aria-label="Toggle theme">
-            <!-- Sun icon -->
-            <svg class="sun-icon" viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="12" cy="12" r="4"></circle>
-                <path d="M12 2v2"></path>
-                <path d="M12 20v2"></path>
-                <path d="M4.93 4.93l1.41 1.41"></path>
-                <path d="M17.66 17.66l1.41 1.41"></path>
-                <path d="M2 12h2"></path>
-                <path d="M20 12h2"></path>
-                <path d="M6.34 17.66l-1.41 1.41"></path>
-                <path d="M19.07 4.93l-1.41 1.41"></path>
-            </svg>
-            <!-- Moon icon -->
-            <svg class="moon-icon" viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
-            </svg>
-        </button>
-    
-        <!-- Welcome screen -->
-        <div class="welcome-screen">
-            <div class="welcome-text">WELCOME</div>
+</head>
+<body>
+    <button id="themeToggle" class="theme-toggle" aria-label="Toggle theme">
+        <svg class="sun-icon" viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="4"></circle>
+            <path d="M12 2v2"></path>
+            <path d="M12 20v2"></path>
+            <path d="M4.93 4.93l1.41 1.41"></path>
+            <path d="M17.66 17.66l1.41 1.41"></path>
+            <path d="M2 12h2"></path>
+            <path d="M20 12h2"></path>
+            <path d="M6.34 17.66l-1.41 1.41"></path>
+            <path d="M19.07 4.93l-1.41 1.41"></path>
+        </svg>
+        <svg class="moon-icon" viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+        </svg>
+    </button>
+
+    <div class="welcome-screen">
+        <div class="welcome-text">WELCOME</div>
+    </div>
+
+    <div class="main-content">
+        <div class="timer" id="timer">
+            <br>You have been clean for
+            <table class="timer-table">
+                <tr><td id="years">00</td><td>Years</td></tr>
+                <tr><td id="months">00</td><td>Months</td></tr>
+                <tr><td id="days">00</td><td>Days</td></tr>
+                <tr><td id="hours">00</td><td>Hours</td></tr>
+                <tr><td id="minutes">00</td><td>Minutes</td></tr>
+                <tr><td id="seconds">00</td><td>Seconds</td></tr>
+            </table>
         </div>
-    
-        <!-- Main content -->
-        <div class="main-content">
-            <div class="timer" id="timer">
-                <br>You have been clean for
-                <table class="timer-table">
-                    <tr><td id="years">00</td><td>Years</td></tr>
-                    <tr><td id="months">00</td><td>Months</td></tr>
-                    <tr><td id="days">00</td><td>Days</td></tr>
-                    <tr><td id="hours">00</td><td>Hours</td></tr>
-                    <tr><td id="minutes">00</td><td>Minutes</td></tr>
-                    <tr><td id="seconds">00</td><td>Seconds</td></tr>
-                </table>
-            </div>
-            <button id="pledgeButton" class="button">I pledge to stay clean till I die</button>
-            <div id="timestamp" class="timestamp"></div>
-            
-            <!-- History section -->
-            <div class="history-section">
-                <div class="history-title">Reset History</div>
-                <div class="history-list" id="historyList">
-                    <!-- History items will be inserted here -->
-                </div>
+        <div id="timestamp" class="timestamp"></div>
+        <button id="pledgeButton" class="button">I pledge to stay clean till I die</button>
+        
+        <div class="history-section">
+            <button class="history-toggle">Show History</button>
+            <div class="history-list hidden" id="historyList">
+                <!-- History items will be inserted here -->
             </div>
         </div>
-    
-        <!-- PIN Modal -->
-        <div id="pinModal" class="modal">
-            <div class="modal-content">
-                <h2>Enter PIN to Reset</h2>
-                <div class="pin-input">
-                    <input type="password" maxlength="1" class="pin-digit" data-pin-index="0">
-                    <input type="password" maxlength="1" class="pin-digit" data-pin-index="1">
-                    <input type="password" maxlength="1" class="pin-digit" data-pin-index="2">
-                    <input type="password" maxlength="1" class="pin-digit" data-pin-index="3">
-                </div>
-                <div class="error-message" id="pinError"></div>
-                <div class="modal-buttons">
-                    <button class="modal-button" id="cancelPin">Cancel</button>
-                    <button class="modal-button" id="confirmPin">Confirm</button>
-                </div>
+    </div>
+
+    <div id="pinModal" class="modal">
+        <div class="modal-content">
+            <h2>Enter PIN to Reset</h2>
+            <div class="pin-input">
+                <input type="password" maxlength="1" class="pin-digit" data-pin-index="0">
+                <input type="password" maxlength="1" class="pin-digit" data-pin-index="1">
+                <input type="password" maxlength="1" class="pin-digit" data-pin-index="2">
+                <input type="password" maxlength="1" class="pin-digit" data-pin-index="3">
+            </div>
+            <div class="error-message" id="pinError"></div>
+            <div class="modal-buttons">
+                <button class="modal-button" id="cancelPin">Cancel</button>
+                <button class="modal-button" id="confirmPin">Confirm</button>
             </div>
         </div>
-    
-        <script type="module">
-            // Import Firebase SDK
-            import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
-            import { getDatabase, ref, set, onValue, get } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
-    
-            // Firebase configuration
-            const firebaseConfig = {
-                apiKey: "AIzaSyBQ8OzGLZB_yeLAdXP8PjraGxzcw-iC3r0",
-                authDomain: "clean-e39a8.firebaseapp.com",
-                databaseURL: "https://clean-e39a8-default-rtdb.firebaseio.com",
-                projectId: "clean-e39a8",
-                storageBucket: "clean-e39a8.firebasestorage.app",
-                messagingSenderId: "788883487803",
-                appId: "1:788883487803:web:771ed94ea3149303dfb01e"
-            };
-    
-            // Initialize Firebase
-            const app = initializeApp(firebaseConfig);
-            const db = getDatabase(app);
-            // Theme toggle functionality
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
+        import { getDatabase, ref, set, onValue, get } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBQ8OzGLZB_yeLAdXP8PjraGxzcw-iC3r0",
+            authDomain: "clean-e39a8.firebaseapp.com",
+            databaseURL: "https://clean-e39a8-default-rtdb.firebaseio.com",
+            projectId: "clean-e39a8",
+            storageBucket: "clean-e39a8.firebasestorage.app",
+            messagingSenderId: "788883487803",
+            appId: "1:788883487803:web:771ed94ea3149303dfb01e"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
         const root = document.documentElement;
         const themeToggle = document.getElementById('themeToggle');
         const THEME_KEY = 'preferred-theme';
-        const PIN = '9384'; // Change this to your desired PIN
+        const PIN = '9384';
 
         const savedTheme = localStorage.getItem(THEME_KEY) || 'dark';
         root.setAttribute('data-theme', savedTheme);
 
-        // Timer Elements
         const welcomeScreen = document.querySelector('.welcome-screen');
         const welcomeText = document.querySelector('.welcome-text');
         const mainContent = document.querySelector('.main-content');
@@ -695,7 +713,6 @@
                 return;
             }
 
-            // Sort timestamps in descending order
             const sortedTimestamps = Object.entries(historyData)
                 .sort(([, a], [, b]) => new Date(b) - new Date(a));
 
@@ -747,18 +764,46 @@
             return enteredPin === PIN;
         }
 
+        async function loadFirebaseData() {
+            return new Promise((resolve) => {
+                const timeRef = ref(db, 'timer/startTime');
+                const historyRef = ref(db, 'timer/history');
+
+                onValue(timeRef, (snapshot) => {
+                    const savedTime = snapshot.val();
+                    if (savedTime) {
+                        startTime = new Date(savedTime);
+                        updateTimestamp('You took the pledge on');
+                        buttonElement.textContent = 'I broke my pledge, start again';
+                        updateTimer();
+                        startTimer();
+                    }
+                    resolve();
+                });
+
+                onValue(historyRef, (snapshot) => {
+                    const historyData = snapshot.val();
+                    updateHistoryDisplay(historyData);
+                });
+            });
+        }
+
         function startWelcomeSequence() {
-            setTimeout(() => {
-                welcomeText.classList.add('fade-out');
+            const timerTable = document.querySelector('.timer-table');
+            timerTable.style.opacity = '0';
+            
+            loadFirebaseData().then(() => {
                 setTimeout(() => {
-                    welcomeScreen.classList.add('fade-out');
-                    mainContent.classList.add('fade-in');
+                    welcomeText.classList.add('fade-out');
                     setTimeout(() => {
-                        timerTable.classList.add('animate');
-                    }, 600);
-                    setTimeout(loadFirebaseData, 1000);
-                }, 600);
-            }, 1000);
+                        welcomeScreen.classList.add('fade-out');
+                        mainContent.classList.add('fade-in');
+                        setTimeout(() => {
+                            timerTable.style.opacity = '1';
+                        }, 300);
+                    }, 800);
+                }, 1000);
+            });
         }
 
         function updateTimer() {
@@ -772,61 +817,48 @@
             const months = Math.floor(diff / (86400000 * 30)) % 12;
             const years = Math.floor(diff / (86400000 * 365));
 
-            function updateElement(element, value, parentElement, previousValue, unit) {
+            const rows = {
+                seconds: document.getElementById('seconds').parentElement,
+                minutes: document.getElementById('minutes').parentElement,
+                hours: document.getElementById('hours').parentElement,
+                days: document.getElementById('days').parentElement,
+                months: document.getElementById('months').parentElement,
+                years: document.getElementById('years').parentElement
+            };
+
+            const values = { seconds, minutes, hours, days, months, years };
+            
+            Object.entries(values).forEach(([unit, value]) => {
+                const element = document.getElementById(unit);
+                const row = rows[unit];
                 const newValue = String(value).padStart(2, '0');
-                const currentValue = parseInt(newValue);
-
-                element.textContent = newValue;
-
+                const prevValue = element.textContent;
+                
                 if (unit !== 'seconds') {
-                    if (currentValue === 0 && 
+                    if (value === 0 && 
                         (unit === 'minutes' || 
                          (unit === 'hours' && days === 0 && months === 0 && years === 0) ||
                          (unit === 'days' && months === 0 && years === 0) ||
                          (unit === 'months' && years === 0) ||
                          unit === 'years')) {
-                        parentElement.style.display = 'none';
+                        row.style.display = 'none';
                     } else {
-                        parentElement.style.display = '';
+                        row.style.display = '';
                     }
                 }
 
-                if (currentValue === 0) {
-                    parentElement.classList.add('zero-value');
-                } else {
-                    parentElement.classList.remove('zero-value');
+                if (prevValue !== newValue) {
+                    element.textContent = newValue;
+                    
+                    row.classList.remove('heartbeat');
+                    void row.offsetWidth;
+                    row.classList.add('heartbeat');
+                    
+                    setTimeout(() => {
+                        row.classList.remove('heartbeat');
+                    }, 600);
                 }
-
-                if (unit === 'seconds') {
-                    if (!parentElement.classList.contains('heartbeat')) {
-                        parentElement.classList.add('heartbeat');
-                    }
-                } else if (element.textContent !== newValue) {
-                    const hasIncreased = value > previousValue || 
-                        (unit === 'minutes' && previousValue === 59 && value === 0) ||
-                        (unit === 'hours' && previousValue === 23 && value === 0) ||
-                        (unit === 'days' && previousValue === 29 && value === 0) ||
-                        (unit === 'months' && previousValue === 11 && value === 0);
-
-                    if (hasIncreased) {
-                        parentElement.classList.remove('heartbeat');
-                        void parentElement.offsetWidth;
-                        parentElement.classList.add('heartbeat');
-                        setTimeout(() => {
-                            parentElement.classList.remove('heartbeat');
-                        }, 1000);
-                    }
-                }
-                
-                previousValues[unit] = value;
-            }
-
-            updateElement(yearsElement, years, yearsElement.parentElement, previousValues.years, 'years');
-            updateElement(monthsElement, months, monthsElement.parentElement, previousValues.months, 'months');
-            updateElement(daysElement, days, daysElement.parentElement, previousValues.days, 'days');
-            updateElement(hoursElement, hours, hoursElement.parentElement, previousValues.hours, 'hours');
-            updateElement(minutesElement, minutes, minutesElement.parentElement, previousValues.minutes, 'minutes');
-            updateElement(secondsElement, seconds, secondsElement.parentElement, previousValues.seconds, 'seconds');
+            });
         }
 
         function updateTimestamp(text) {
@@ -851,27 +883,6 @@
             intervalId = setInterval(updateTimer, 1000);
         }
 
-        function loadFirebaseData() {
-            const timeRef = ref(db, 'timer/startTime');
-            const historyRef = ref(db, 'timer/history');
-
-            onValue(timeRef, (snapshot) => {
-                const savedTime = snapshot.val();
-                if (savedTime) {
-                    startTime = new Date(savedTime);
-                    updateTimestamp('You took the pledge on');
-                    buttonElement.textContent = 'I broke my pledge, start again';
-                    startTimer();
-                }
-            });
-
-            onValue(historyRef, (snapshot) => {
-                const historyData = snapshot.val();
-                updateHistoryDisplay(historyData);
-            });
-        }
-
-        // Event Listeners
         themeToggle.addEventListener('click', toggleTheme);
 
         buttonElement.addEventListener('click', () => {
@@ -889,7 +900,6 @@
             }
         });
 
-        // PIN input handling
         pinDigits.forEach((digit, index) => {
             digit.addEventListener('input', (e) => {
                 if (e.target.value.length === 1) {
@@ -914,16 +924,13 @@
                 hidePinModal();
                 const newStartTime = new Date();
                 
-                // Get current history first
                 const historyRef = ref(db, 'timer/history');
                 get(historyRef).then((snapshot) => {
                     const currentHistory = snapshot.val() || {};
                     const newHistoryKey = new Date().getTime().toString();
                     
-                    // Add new timestamp to history
                     currentHistory[newHistoryKey] = newStartTime.toISOString();
                     
-                    // Update both start time and history
                     set(ref(db, 'timer'), {
                         startTime: newStartTime.toISOString(),
                         history: currentHistory
@@ -945,8 +952,17 @@
             if (e.target === pinModal) hidePinModal();
         });
 
-        // Start welcome sequence
         document.addEventListener('DOMContentLoaded', startWelcomeSequence);
+
+        const historyToggle = document.querySelector('.history-toggle');
+        const historyList = document.querySelector('.history-list');
+
+        historyToggle.addEventListener('click', () => {
+            historyList.classList.toggle('hidden');
+            historyToggle.textContent = historyList.classList.contains('hidden') 
+                ? 'Show History' 
+                : 'Reset History';
+        });
     </script>
 </body>
 </html>
