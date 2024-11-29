@@ -150,8 +150,8 @@
             opacity: 1;
             transform: translateY(0);
         }
-
-        .timer {
+/* Timer and table styles */
+.timer {
             font-size: 0.875rem;
             font-weight: 300;
             margin: 0 auto 1.5rem;
@@ -163,8 +163,8 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            white-space: normal; /* Added to allow wrapping */
-            line-height: 1.4; /* Added to improve readability */
+            white-space: normal;
+            line-height: 1.4;
         }
 
         .timer-table {
@@ -225,35 +225,84 @@
             text-transform: uppercase;
         }
 
-        .timer-table tr:hover td {
-            background-color: rgba(128, 128, 128, 0.05);
+        /* PIN Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 3000;
+            align-items: center;
+            justify-content: center;
         }
 
-        .timer-table tr:last-child td {
-            border-bottom: none;
+        .modal-content {
+            background: var(--card-bg);
+            padding: 2rem;
+            border-radius: var(--border-radius);
+            backdrop-filter: blur(20px);
+            max-width: 90%;
+            width: 320px;
+            text-align: center;
         }
 
-        /* Modified heartbeat animation */
-        @keyframes heartbeat {
-            0%, 100% { 
-                background-color: transparent; 
-            }
-            50% { 
-                background-color: rgba(34, 197, 94, 0.08); 
-            }
+        .pin-input {
+            margin: 1.5rem 0;
+            display: flex;
+            gap: 0.5rem;
+            justify-content: center;
         }
 
-        .timer-table tr.heartbeat td {
-            animation: heartbeat 1s ease-in-out infinite;
+        .pin-digit {
+            width: 3rem;
+            height: 3rem;
+            font-size: 1.5rem;
+            text-align: center;
+            border: 2px solid var(--border-color);
+            background: transparent;
+            color: var(--primary);
+            border-radius: var(--border-radius);
         }
 
-        .timer-table.animate tr:nth-child(1) { animation-delay: 0.1s; }
-        .timer-table.animate tr:nth-child(2) { animation-delay: 0.2s; }
-        .timer-table.animate tr:nth-child(3) { animation-delay: 0.3s; }
-        .timer-table.animate tr:nth-child(4) { animation-delay: 0.4s; }
-        .timer-table.animate tr:nth-child(5) { animation-delay: 0.5s; }
-        .timer-table.animate tr:nth-child(6) { animation-delay: 0.6s; }
+        .pin-digit:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
 
+        .modal-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+        }
+
+        .modal-button {
+            padding: 0.5rem 1rem;
+            border: 2px solid var(--accent);
+            background: transparent;
+            color: var(--accent);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            font-size: 0.875rem;
+        }
+
+        .modal-button:hover {
+            background: var(--accent);
+            color: var(--background);
+        }
+
+        .error-message {
+            color: #dc2626;
+            font-size: 0.875rem;
+            margin-top: 0.5rem;
+            min-height: 1.25rem;
+        }
+
+        /* Button and timestamp styles */
         .button {
             appearance: none;
             border: 2px solid var(--accent);
@@ -270,13 +319,13 @@
             position: relative;
             overflow: hidden;
             width: 250px;
-            white-space: normal; /* Changed from nowrap to normal */
-            min-height: 60px; /* Added to ensure enough height for wrapped text */
-            line-height: 1.2; /* Added to improve readability of wrapped text */
-            display: flex; /* Changed from block */
+            white-space: normal;
+            min-height: 60px;
+            line-height: 1.2;
+            display: flex;
             align-items: center;
             justify-content: center;
-            text-align: center; /* Added to ensure centered text */
+            text-align: center;
         }
 
         .button::after {
@@ -322,6 +371,7 @@
             display: none;
         }
 
+        /* Animations */
         @keyframes fadeIn {
             from {
                 opacity: 0;
@@ -333,6 +383,16 @@
             }
         }
 
+        @keyframes heartbeat {
+            0%, 100% { 
+                background-color: transparent; 
+            }
+            50% { 
+                background-color: rgba(34, 197, 94, 0.08); 
+            }
+        }
+
+        /* Responsive styles */
         @media (min-width: 768px) {
             .timer {
                 font-size: 1rem;
@@ -389,254 +449,333 @@
             }
         }
     </style>
-</head>
-<body>
-    <!-- Theme toggle button -->
-    <button id="themeToggle" class="theme-toggle" aria-label="Toggle theme">
-        <!-- Sun icon -->
-        <svg class="sun-icon" viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="12" cy="12" r="4"></circle>
-            <path d="M12 2v2"></path>
-            <path d="M12 20v2"></path>
-            <path d="M4.93 4.93l1.41 1.41"></path>
-            <path d="M17.66 17.66l1.41 1.41"></path>
-            <path d="M2 12h2"></path>
-            <path d="M20 12h2"></path>
-            <path d="M6.34 17.66l-1.41 1.41"></path>
-            <path d="M19.07 4.93l-1.41 1.41"></path>
-        </svg>
-        <!-- Moon icon -->
-        <svg class="moon-icon" viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
-        </svg>
-    </button>
-
-    <!-- Welcome screen -->
-    <div class="welcome-screen">
-        <div class="welcome-text">WELCOME</div>
-    </div>
-
-    <!-- Main content -->
-    <div class="main-content">
-        <div class="timer" id="timer">
-            You have been clean for
-            <table class="timer-table">
-                <tr><td id="years">00</td><td>Years</td></tr>
-                <tr><td id="months">00</td><td>Months</td></tr>
-                <tr><td id="days">00</td><td>Days</td></tr>
-                <tr><td id="hours">00</td><td>Hours</td></tr>
-                <tr><td id="minutes">00</td><td>Minutes</td></tr>
-                <tr><td id="seconds">00</td><td>Seconds</td></tr>
-            </table>
+    </head>
+    <body>
+        <!-- Theme toggle button -->
+        <button id="themeToggle" class="theme-toggle" aria-label="Toggle theme">
+            <!-- Sun icon -->
+            <svg class="sun-icon" viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="4"></circle>
+                <path d="M12 2v2"></path>
+                <path d="M12 20v2"></path>
+                <path d="M4.93 4.93l1.41 1.41"></path>
+                <path d="M17.66 17.66l1.41 1.41"></path>
+                <path d="M2 12h2"></path>
+                <path d="M20 12h2"></path>
+                <path d="M6.34 17.66l-1.41 1.41"></path>
+                <path d="M19.07 4.93l-1.41 1.41"></path>
+            </svg>
+            <!-- Moon icon -->
+            <svg class="moon-icon" viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+            </svg>
+        </button>
+    
+        <!-- Welcome screen -->
+        <div class="welcome-screen">
+            <div class="welcome-text">WELCOME</div>
         </div>
-        <button id="pledgeButton" class="button">I pledge to stay clean till I die</button>
-        <div id="timestamp" class="timestamp"></div>
-    </div>
-
-    <script type="module">
-        // Import Firebase SDK
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
-        import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
-
-        // Firebase configuration
-        const firebaseConfig = {
-            apiKey: "AIzaSyBQ8OzGLZB_yeLAdXP8PjraGxzcw-iC3r0",
-            authDomain: "clean-e39a8.firebaseapp.com",
-            databaseURL: "https://clean-e39a8-default-rtdb.firebaseio.com",
-            projectId: "clean-e39a8",
-            storageBucket: "clean-e39a8.firebasestorage.app",
-            messagingSenderId: "788883487803",
-            appId: "1:788883487803:web:771ed94ea3149303dfb01e"
-        };
-
-        // Initialize Firebase
-        const app = initializeApp(firebaseConfig);
-        const db = getDatabase(app);
-
-        // Theme toggle functionality
-        const root = document.documentElement;
-        const themeToggle = document.getElementById('themeToggle');
-        const THEME_KEY = 'preferred-theme';
-
-        const savedTheme = localStorage.getItem(THEME_KEY) || 'dark';
-        root.setAttribute('data-theme', savedTheme);
-
-        function toggleTheme() {
-            const currentTheme = root.getAttribute('data-theme');
-            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-            root.setAttribute('data-theme', newTheme);
-            localStorage.setItem(THEME_KEY, newTheme);
-        }
-
-        themeToggle.addEventListener('click', toggleTheme);
-
-        // Animation and Timer Elements
-        const welcomeScreen = document.querySelector('.welcome-screen');
-        const welcomeText = document.querySelector('.welcome-text');
-        const mainContent = document.querySelector('.main-content');
-        const timerTable = document.querySelector('.timer-table');
-        const yearsElement = document.getElementById('years');
-        const monthsElement = document.getElementById('months');
-        const daysElement = document.getElementById('days');
-        const hoursElement = document.getElementById('hours');
-        const minutesElement = document.getElementById('minutes');
-        const secondsElement = document.getElementById('seconds');
-        const buttonElement = document.getElementById('pledgeButton');
-        const timestampElement = document.getElementById('timestamp');
-
-        let startTime = null;
-        let intervalId = null;
-        let previousValues = {
-            years: 0,
-            months: 0,
-            days: 0,
-            hours: 0,
-            minutes: 0,
-            seconds: 0
-        };
-
-        // Welcome animation sequence
-        function startWelcomeSequence() {
-            setTimeout(() => {
-                welcomeText.classList.add('fade-out');
-                
-                setTimeout(() => {
-                    welcomeScreen.classList.add('fade-out');
-                    mainContent.classList.add('fade-in');
-                    
-                    setTimeout(() => {
-                        timerTable.classList.add('animate');
-                    }, 600);
-                    
-                    setTimeout(loadFirebaseData, 1000);
-                }, 600);
-            }, 1000);
-        }
-
-        function updateTimer() {
-            if (!startTime) return;
-            
-            const diff = new Date() - startTime;
-            const seconds = Math.floor(diff / 1000) % 60;
-            const minutes = Math.floor(diff / 60000) % 60;
-            const hours = Math.floor(diff / 3600000) % 24;
-            const days = Math.floor(diff / 86400000) % 30;
-            const months = Math.floor(diff / (86400000 * 30)) % 12;
-            const years = Math.floor(diff / (86400000 * 365));
-
-            function updateElement(element, value, parentElement, previousValue, unit) {
-                const newValue = String(value).padStart(2, '0');
-                const currentValue = parseInt(newValue);
-
-                // Update the display value
-                element.textContent = newValue;
-
-                // Hide rows with zero values, except seconds which should always show
-                if (unit !== 'seconds') {
-                    if (currentValue === 0 && 
-                        // Only hide if all larger units are also zero
-                        (unit === 'minutes' || (unit === 'hours' && days === 0 && months === 0 && years === 0) ||
-                         (unit === 'days' && months === 0 && years === 0) ||
-                         (unit === 'months' && years === 0) ||
-                         unit === 'years')) {
-                        parentElement.style.display = 'none';
-                    } else {
-                        parentElement.style.display = '';
-                    }
-                }
-
-                // Rest of your existing animation logic
-                if (currentValue === 0) {
-                    parentElement.classList.add('zero-value');
-                } else {
-                    parentElement.classList.remove('zero-value');
-                }
-
-                if (unit === 'seconds') {
-                    if (!parentElement.classList.contains('heartbeat')) {
-                        parentElement.classList.add('heartbeat');
-                    }
-                } else if (element.textContent !== newValue) {
-                    const hasIncreased = value > previousValue || 
-                        (unit === 'minutes' && previousValue === 59 && value === 0) ||
-                        (unit === 'hours' && previousValue === 23 && value === 0) ||
-                        (unit === 'days' && previousValue === 29 && value === 0) ||
-                        (unit === 'months' && previousValue === 11 && value === 0);
-
-                    if (hasIncreased) {
-                        parentElement.classList.remove('heartbeat');
-                        void parentElement.offsetWidth;
-                        parentElement.classList.add('heartbeat');
-                        setTimeout(() => {
-                            parentElement.classList.remove('heartbeat');
-                        }, 1000);
-                    }
-                }
-                
-                previousValues[unit] = value;
+    
+        <!-- Main content -->
+        <div class="main-content">
+            <div class="timer" id="timer">
+                You have been clean for
+                <table class="timer-table">
+                    <tr><td id="years">00</td><td>Years</td></tr>
+                    <tr><td id="months">00</td><td>Months</td></tr>
+                    <tr><td id="days">00</td><td>Days</td></tr>
+                    <tr><td id="hours">00</td><td>Hours</td></tr>
+                    <tr><td id="minutes">00</td><td>Minutes</td></tr>
+                    <tr><td id="seconds">00</td><td>Seconds</td></tr>
+                </table>
+            </div>
+            <button id="pledgeButton" class="button">I pledge to stay clean till I die</button>
+            <div id="timestamp" class="timestamp"></div>
+        </div>
+    
+        <!-- PIN Modal -->
+        <div id="pinModal" class="modal">
+            <div class="modal-content">
+                <h2>Enter PIN to Reset</h2>
+                <div class="pin-input">
+                    <input type="password" maxlength="1" class="pin-digit" data-pin-index="0">
+                    <input type="password" maxlength="1" class="pin-digit" data-pin-index="1">
+                    <input type="password" maxlength="1" class="pin-digit" data-pin-index="2">
+                    <input type="password" maxlength="1" class="pin-digit" data-pin-index="3">
+                </div>
+                <div class="error-message" id="pinError"></div>
+                <div class="modal-buttons">
+                    <button class="modal-button" id="cancelPin">Cancel</button>
+                    <button class="modal-button" id="confirmPin">Confirm</button>
+                </div>
+            </div>
+        </div>
+    
+        <script type="module">
+            // Import Firebase SDK
+            import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
+            import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
+    
+            // Firebase configuration
+            const firebaseConfig = {
+                apiKey: "AIzaSyBQ8OzGLZB_yeLAdXP8PjraGxzcw-iC3r0",
+                authDomain: "clean-e39a8.firebaseapp.com",
+                databaseURL: "https://clean-e39a8-default-rtdb.firebaseio.com",
+                projectId: "clean-e39a8",
+                storageBucket: "clean-e39a8.firebasestorage.app",
+                messagingSenderId: "788883487803",
+                appId: "1:788883487803:web:771ed94ea3149303dfb01e"
+            };
+    
+            // Initialize Firebase
+            const app = initializeApp(firebaseConfig);
+            const db = getDatabase(app);
+    
+            // Theme toggle functionality
+            const root = document.documentElement;
+            const themeToggle = document.getElementById('themeToggle');
+            const THEME_KEY = 'preferred-theme';
+            const PIN = '9384'; // Change this to your desired PIN
+    
+            const savedTheme = localStorage.getItem(THEME_KEY) || 'dark';
+            root.setAttribute('data-theme', savedTheme);
+    
+            // Timer Elements
+            const welcomeScreen = document.querySelector('.welcome-screen');
+            const welcomeText = document.querySelector('.welcome-text');
+            const mainContent = document.querySelector('.main-content');
+            const timerTable = document.querySelector('.timer-table');
+            const yearsElement = document.getElementById('years');
+            const monthsElement = document.getElementById('months');
+            const daysElement = document.getElementById('days');
+            const hoursElement = document.getElementById('hours');
+            const minutesElement = document.getElementById('minutes');
+            const secondsElement = document.getElementById('seconds');
+            const buttonElement = document.getElementById('pledgeButton');
+            const timestampElement = document.getElementById('timestamp');
+            const pinModal = document.getElementById('pinModal');
+            const pinDigits = document.querySelectorAll('.pin-digit');
+            const confirmPinButton = document.getElementById('confirmPin');
+            const cancelPinButton = document.getElementById('cancelPin');
+            const pinError = document.getElementById('pinError');
+    
+            let startTime = null;
+            let intervalId = null;
+            let previousValues = {
+                years: 0,
+                months: 0,
+                days: 0,
+                hours: 0,
+                minutes: 0,
+                seconds: 0
+            };
+    
+            function toggleTheme() {
+                const currentTheme = root.getAttribute('data-theme');
+                const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+                root.setAttribute('data-theme', newTheme);
+                localStorage.setItem(THEME_KEY, newTheme);
             }
-
-            updateElement(yearsElement, years, yearsElement.parentElement, previousValues.years, 'years');
-            updateElement(monthsElement, months, monthsElement.parentElement, previousValues.months, 'months');
-            updateElement(daysElement, days, daysElement.parentElement, previousValues.days, 'days');
-            updateElement(hoursElement, hours, hoursElement.parentElement, previousValues.hours, 'hours');
-            updateElement(minutesElement, minutes, minutesElement.parentElement, previousValues.minutes, 'minutes');
-            updateElement(secondsElement, seconds, secondsElement.parentElement, previousValues.seconds, 'seconds');
-        }
-
-        function updateTimestamp(text) {
-            if (!startTime) return;
-            const formattedDate = startTime.toLocaleString('en-IN', { 
-                weekday: 'long',
-                day: 'numeric',
-                month: 'long',
-                year: 'numeric',
-                hour: 'numeric',
-                minute: 'numeric',
-                second: 'numeric',
-                hour12: true 
-            });
-            // Split the text exactly after "on"
-            const prefix = text.endsWith('on') ? text : `${text} on`;
-            timestampElement.innerHTML = `${prefix}<br>${formattedDate}`;
-        }
-
-        function startTimer() {
-            if (intervalId) clearInterval(intervalId);
-            updateTimer();
-            intervalId = setInterval(updateTimer, 1000);
-        }
-
-        // Firebase data loading
-        function loadFirebaseData() {
-            const timeRef = ref(db, 'timer/startTime');
-            onValue(timeRef, (snapshot) => {
-                const savedTime = snapshot.val();
-                if (savedTime) {
-                    startTime = new Date(savedTime);
+    
+            // PIN handling functions
+            function clearPinInputs() {
+                pinDigits.forEach(digit => digit.value = '');
+                pinError.textContent = '';
+            }
+    
+            function showPinModal() {
+                pinModal.style.display = 'flex';
+                pinDigits[0].focus();
+            }
+    
+            function hidePinModal() {
+                pinModal.style.display = 'none';
+                clearPinInputs();
+            }
+    
+            function validatePin() {
+                const enteredPin = Array.from(pinDigits).map(digit => digit.value).join('');
+                return enteredPin === PIN;
+            }
+    
+            // Welcome animation sequence
+            function startWelcomeSequence() {
+                setTimeout(() => {
+                    welcomeText.classList.add('fade-out');
+                    setTimeout(() => {
+                        welcomeScreen.classList.add('fade-out');
+                        mainContent.classList.add('fade-in');
+                        setTimeout(() => {
+                            timerTable.classList.add('animate');
+                        }, 600);
+                        setTimeout(loadFirebaseData, 1000);
+                    }, 600);
+                }, 1000);
+            }
+    
+            function updateTimer() {
+                if (!startTime) return;
+                
+                const diff = new Date() - startTime;
+                const seconds = Math.floor(diff / 1000) % 60;
+                const minutes = Math.floor(diff / 60000) % 60;
+                const hours = Math.floor(diff / 3600000) % 24;
+                const days = Math.floor(diff / 86400000) % 30;
+                const months = Math.floor(diff / (86400000 * 30)) % 12;
+                const years = Math.floor(diff / (86400000 * 365));
+    
+                function updateElement(element, value, parentElement, previousValue, unit) {
+                    const newValue = String(value).padStart(2, '0');
+                    const currentValue = parseInt(newValue);
+    
+                    element.textContent = newValue;
+    
+                    if (unit !== 'seconds') {
+                        if (currentValue === 0 && 
+                            (unit === 'minutes' || 
+                             (unit === 'hours' && days === 0 && months === 0 && years === 0) ||
+                             (unit === 'days' && months === 0 && years === 0) ||
+                             (unit === 'months' && years === 0) ||
+                             unit === 'years')) {
+                            parentElement.style.display = 'none';
+                        } else {
+                            parentElement.style.display = '';
+                        }
+                    }
+    
+                    if (currentValue === 0) {
+                        parentElement.classList.add('zero-value');
+                    } else {
+                        parentElement.classList.remove('zero-value');
+                    }
+    
+                    if (unit === 'seconds') {
+                        if (!parentElement.classList.contains('heartbeat')) {
+                            parentElement.classList.add('heartbeat');
+                        }
+                    } else if (element.textContent !== newValue) {
+                        const hasIncreased = value > previousValue || 
+                            (unit === 'minutes' && previousValue === 59 && value === 0) ||
+                            (unit === 'hours' && previousValue === 23 && value === 0) ||
+                            (unit === 'days' && previousValue === 29 && value === 0) ||
+                            (unit === 'months' && previousValue === 11 && value === 0);
+    
+                        if (hasIncreased) {
+                            parentElement.classList.remove('heartbeat');
+                            void parentElement.offsetWidth;
+                            parentElement.classList.add('heartbeat');
+                            setTimeout(() => {
+                                parentElement.classList.remove('heartbeat');
+                            }, 1000);
+                        }
+                    }
+                    
+                    previousValues[unit] = value;
+                }
+    
+                updateElement(yearsElement, years, yearsElement.parentElement, previousValues.years, 'years');
+                updateElement(monthsElement, months, monthsElement.parentElement, previousValues.months, 'months');
+                updateElement(daysElement, days, daysElement.parentElement, previousValues.days, 'days');
+                updateElement(hoursElement, hours, hoursElement.parentElement, previousValues.hours, 'hours');
+                updateElement(minutesElement, minutes, minutesElement.parentElement, previousValues.minutes, 'minutes');
+                updateElement(secondsElement, seconds, secondsElement.parentElement, previousValues.seconds, 'seconds');
+            }
+    
+            function updateTimestamp(text) {
+                if (!startTime) return;
+                const formattedDate = startTime.toLocaleString('en-IN', { 
+                    weekday: 'long',
+                    day: 'numeric',
+                    month: 'long',
+                    year: 'numeric',
+                    hour: 'numeric',
+                    minute: 'numeric',
+                    second: 'numeric',
+                    hour12: true 
+                });
+                const prefix = text.endsWith('on') ? text : `${text} on`;
+                timestampElement.innerHTML = `${prefix}<br>${formattedDate}`;
+            }
+    
+            function startTimer() {
+                if (intervalId) clearInterval(intervalId);
+                updateTimer();
+                intervalId = setInterval(updateTimer, 1000);
+            }
+    
+            function loadFirebaseData() {
+                const timeRef = ref(db, 'timer/startTime');
+                onValue(timeRef, (snapshot) => {
+                    const savedTime = snapshot.val();
+                    if (savedTime) {
+                        startTime = new Date(savedTime);
+                        updateTimestamp('You took the pledge on');
+                        buttonElement.textContent = 'I broke my pledge, start again';
+                        startTimer();
+                    }
+                });
+            }
+    
+            // Event Listeners
+            themeToggle.addEventListener('click', toggleTheme);
+    
+            buttonElement.addEventListener('click', () => {
+                if (buttonElement.textContent.includes('broke')) {
+                    showPinModal();
+                } else {
+                    startTime = new Date();
+                    set(ref(db, 'timer'), {
+                        startTime: startTime.toISOString()
+                    });
                     updateTimestamp('You took the pledge on');
                     buttonElement.textContent = 'I broke my pledge, start again';
                     startTimer();
                 }
             });
-        }
-
-        // Button click handler
-        buttonElement.addEventListener('click', () => {
-            startTime = new Date();
-            
-            // Save to Firebase
-            set(ref(db, 'timer'), {
-                startTime: startTime.toISOString()
+    
+            // PIN input handling
+            pinDigits.forEach((digit, index) => {
+                digit.addEventListener('input', (e) => {
+                    if (e.target.value.length === 1) {
+                        const nextDigit = pinDigits[index + 1];
+                        if (nextDigit) nextDigit.focus();
+                    }
+                });
+    
+                digit.addEventListener('keydown', (e) => {
+                    if (e.key === 'Backspace' && !e.target.value) {
+                        const prevDigit = pinDigits[index - 1];
+                        if (prevDigit) {
+                            prevDigit.focus();
+                            prevDigit.value = '';
+                        }
+                    }
+                });
             });
-            
-            updateTimestamp('You took the pledge on');
-            buttonElement.textContent = 'I broke my pledge, start again';
-            startTimer();
-        });
-
-        // Start the welcome sequence when the page loads
-        document.addEventListener('DOMContentLoaded', startWelcomeSequence);
-    </script>
-</body>
-</html>
+    
+            confirmPinButton.addEventListener('click', () => {
+                if (validatePin()) {
+                    hidePinModal();
+                    startTime = new Date();
+                    set(ref(db, 'timer'), {
+                        startTime: startTime.toISOString()
+                    });
+                    updateTimestamp('You took the pledge on');
+                    startTimer();
+                } else {
+                    pinError.textContent = 'Incorrect PIN';
+                    clearPinInputs();
+                    pinDigits[0].focus();
+                }
+            });
+    
+            cancelPinButton.addEventListener('click', hidePinModal);
+            pinModal.addEventListener('click', (e) => {
+                if (e.target === pinModal) hidePinModal();
+            });
+    
+            // Start welcome sequence
+            document.addEventListener('DOMContentLoaded', startWelcomeSequence);
+        </script>
+    </body>
+    </html>
