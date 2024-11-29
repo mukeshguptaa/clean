@@ -150,8 +150,8 @@
             opacity: 1;
             transform: translateY(0);
         }
-/* Timer and table styles */
-.timer {
+        /* Timer and table styles */
+        .timer {
             font-size: 0.875rem;
             font-weight: 300;
             margin: 0 auto 1.5rem;
@@ -223,6 +223,71 @@
             padding-left: 2rem;
             letter-spacing: 0.1em;
             text-transform: uppercase;
+        }
+
+        /* History section styles */
+        .history-section {
+            width: 100%;
+            max-width: 250px;
+            margin: 2rem auto;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+        }
+
+        .history-section.fade-in {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .history-title {
+            font-size: 0.875rem;
+            color: var(--secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 1rem;
+        }
+
+        .history-list {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            padding: 1rem;
+            border-radius: var(--border-radius);
+            max-height: 200px;
+            overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: var(--secondary) transparent;
+        }
+
+        .history-list::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .history-list::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .history-list::-webkit-scrollbar-thumb {
+            background-color: var(--secondary);
+            border-radius: 3px;
+        }
+
+        .history-item {
+            font-size: 0.75rem;
+            color: var(--secondary);
+            padding: 0.5rem;
+            border-bottom: 1px solid var(--border-color);
+            text-align: left;
+        }
+
+        .history-item:last-child {
+            border-bottom: none;
+        }
+
+        .history-date {
+            color: var(--primary);
+            display: block;
+            margin-bottom: 0.25rem;
         }
 
         /* PIN Modal styles */
@@ -419,6 +484,18 @@
                 font-size: 0.875rem;
                 min-width: 400px;
             }
+
+            .history-section {
+                max-width: 400px;
+            }
+            
+            .history-title {
+                font-size: 1rem;
+            }
+            
+            .history-item {
+                font-size: 0.875rem;
+            }
         }
 
         @media (min-width: 1920px) {
@@ -446,6 +523,14 @@
             .timestamp {
                 font-size: 1rem;
                 min-width: 500px;
+            }
+
+            .history-section {
+                max-width: 500px;
+            }
+
+            .history-list {
+                max-height: 300px;
             }
         }
     </style>
@@ -491,6 +576,14 @@
             </div>
             <button id="pledgeButton" class="button">I pledge to stay clean till I die</button>
             <div id="timestamp" class="timestamp"></div>
+            
+            <!-- History section -->
+            <div class="history-section">
+                <div class="history-title">Reset History</div>
+                <div class="history-list" id="historyList">
+                    <!-- History items will be inserted here -->
+                </div>
+            </div>
         </div>
     
         <!-- PIN Modal -->
@@ -514,7 +607,7 @@
         <script type="module">
             // Import Firebase SDK
             import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
-            import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
+            import { getDatabase, ref, set, onValue, get } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
     
             // Firebase configuration
             const firebaseConfig = {
@@ -530,252 +623,330 @@
             // Initialize Firebase
             const app = initializeApp(firebaseConfig);
             const db = getDatabase(app);
-    
             // Theme toggle functionality
-            const root = document.documentElement;
-            const themeToggle = document.getElementById('themeToggle');
-            const THEME_KEY = 'preferred-theme';
-            const PIN = '9384'; // Change this to your desired PIN
-    
-            const savedTheme = localStorage.getItem(THEME_KEY) || 'dark';
-            root.setAttribute('data-theme', savedTheme);
-    
-            // Timer Elements
-            const welcomeScreen = document.querySelector('.welcome-screen');
-            const welcomeText = document.querySelector('.welcome-text');
-            const mainContent = document.querySelector('.main-content');
-            const timerTable = document.querySelector('.timer-table');
-            const yearsElement = document.getElementById('years');
-            const monthsElement = document.getElementById('months');
-            const daysElement = document.getElementById('days');
-            const hoursElement = document.getElementById('hours');
-            const minutesElement = document.getElementById('minutes');
-            const secondsElement = document.getElementById('seconds');
-            const buttonElement = document.getElementById('pledgeButton');
-            const timestampElement = document.getElementById('timestamp');
-            const pinModal = document.getElementById('pinModal');
-            const pinDigits = document.querySelectorAll('.pin-digit');
-            const confirmPinButton = document.getElementById('confirmPin');
-            const cancelPinButton = document.getElementById('cancelPin');
-            const pinError = document.getElementById('pinError');
-    
-            let startTime = null;
-            let intervalId = null;
-            let previousValues = {
-                years: 0,
-                months: 0,
-                days: 0,
-                hours: 0,
-                minutes: 0,
-                seconds: 0
-            };
-    
-            function toggleTheme() {
-                const currentTheme = root.getAttribute('data-theme');
-                const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-                root.setAttribute('data-theme', newTheme);
-                localStorage.setItem(THEME_KEY, newTheme);
+        const root = document.documentElement;
+        const themeToggle = document.getElementById('themeToggle');
+        const THEME_KEY = 'preferred-theme';
+        const PIN = '9384'; // Change this to your desired PIN
+
+        const savedTheme = localStorage.getItem(THEME_KEY) || 'dark';
+        root.setAttribute('data-theme', savedTheme);
+
+        // Timer Elements
+        const welcomeScreen = document.querySelector('.welcome-screen');
+        const welcomeText = document.querySelector('.welcome-text');
+        const mainContent = document.querySelector('.main-content');
+        const timerTable = document.querySelector('.timer-table');
+        const yearsElement = document.getElementById('years');
+        const monthsElement = document.getElementById('months');
+        const daysElement = document.getElementById('days');
+        const hoursElement = document.getElementById('hours');
+        const minutesElement = document.getElementById('minutes');
+        const secondsElement = document.getElementById('seconds');
+        const buttonElement = document.getElementById('pledgeButton');
+        const timestampElement = document.getElementById('timestamp');
+        const pinModal = document.getElementById('pinModal');
+        const pinDigits = document.querySelectorAll('.pin-digit');
+        const confirmPinButton = document.getElementById('confirmPin');
+        const cancelPinButton = document.getElementById('cancelPin');
+        const pinError = document.getElementById('pinError');
+
+        let startTime = null;
+        let intervalId = null;
+        let previousValues = {
+            years: 0,
+            months: 0,
+            days: 0,
+            hours: 0,
+            minutes: 0,
+            seconds: 0
+        };
+
+        function formatRelativeTime(timestamp) {
+            const rtf = new Intl.RelativeTimeFormat('en', { numeric: 'auto' });
+            const now = new Date();
+            const then = new Date(timestamp);
+            const diffInSeconds = Math.floor((then - now) / 1000);
+            
+            if (Math.abs(diffInSeconds) < 60) return rtf.format(diffInSeconds, 'second');
+            
+            const diffInMinutes = Math.floor(diffInSeconds / 60);
+            if (Math.abs(diffInMinutes) < 60) return rtf.format(diffInMinutes, 'minute');
+            
+            const diffInHours = Math.floor(diffInMinutes / 60);
+            if (Math.abs(diffInHours) < 24) return rtf.format(diffInHours, 'hour');
+            
+            const diffInDays = Math.floor(diffInHours / 24);
+            if (Math.abs(diffInDays) < 30) return rtf.format(diffInDays, 'day');
+            
+            const diffInMonths = Math.floor(diffInDays / 30);
+            if (Math.abs(diffInMonths) < 12) return rtf.format(diffInMonths, 'month');
+            
+            const diffInYears = Math.floor(diffInDays / 365);
+            return rtf.format(diffInYears, 'year');
+        }
+
+        function updateHistoryDisplay(historyData) {
+            const historyList = document.getElementById('historyList');
+            const historySection = document.querySelector('.history-section');
+            
+            if (!historyData || Object.keys(historyData).length === 0) {
+                historyList.innerHTML = '<div class="history-item">No reset history yet</div>';
+                return;
             }
-    
-            // PIN handling functions
-            function clearPinInputs() {
-                pinDigits.forEach(digit => digit.value = '');
-                pinError.textContent = '';
-            }
-    
-            function showPinModal() {
-                pinModal.style.display = 'flex';
-                pinDigits[0].focus();
-            }
-    
-            function hidePinModal() {
-                pinModal.style.display = 'none';
-                clearPinInputs();
-            }
-    
-            function validatePin() {
-                const enteredPin = Array.from(pinDigits).map(digit => digit.value).join('');
-                return enteredPin === PIN;
-            }
-    
-            // Welcome animation sequence
-            function startWelcomeSequence() {
+
+            // Sort timestamps in descending order
+            const sortedTimestamps = Object.entries(historyData)
+                .sort(([, a], [, b]) => new Date(b) - new Date(a));
+
+            historyList.innerHTML = sortedTimestamps.map(([key, timestamp]) => {
+                const date = new Date(timestamp);
+                return `
+                    <div class="history-item">
+                        <span class="history-date">${date.toLocaleString('en-IN', {
+                            weekday: 'long',
+                            day: 'numeric',
+                            month: 'long',
+                            year: 'numeric',
+                            hour: 'numeric',
+                            minute: 'numeric',
+                            hour12: true
+                        })}</span>
+                        ${formatRelativeTime(timestamp)}
+                    </div>
+                `;
+            }).join('');
+
+            historySection.classList.add('fade-in');
+        }
+
+        function toggleTheme() {
+            const currentTheme = root.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            root.setAttribute('data-theme', newTheme);
+            localStorage.setItem(THEME_KEY, newTheme);
+        }
+
+        function clearPinInputs() {
+            pinDigits.forEach(digit => digit.value = '');
+            pinError.textContent = '';
+        }
+
+        function showPinModal() {
+            pinModal.style.display = 'flex';
+            pinDigits[0].focus();
+        }
+
+        function hidePinModal() {
+            pinModal.style.display = 'none';
+            clearPinInputs();
+        }
+
+        function validatePin() {
+            const enteredPin = Array.from(pinDigits).map(digit => digit.value).join('');
+            return enteredPin === PIN;
+        }
+
+        function startWelcomeSequence() {
+            setTimeout(() => {
+                welcomeText.classList.add('fade-out');
                 setTimeout(() => {
-                    welcomeText.classList.add('fade-out');
+                    welcomeScreen.classList.add('fade-out');
+                    mainContent.classList.add('fade-in');
                     setTimeout(() => {
-                        welcomeScreen.classList.add('fade-out');
-                        mainContent.classList.add('fade-in');
-                        setTimeout(() => {
-                            timerTable.classList.add('animate');
-                        }, 600);
-                        setTimeout(loadFirebaseData, 1000);
+                        timerTable.classList.add('animate');
                     }, 600);
-                }, 1000);
-            }
-    
-            function updateTimer() {
-                if (!startTime) return;
-                
-                const diff = new Date() - startTime;
-                const seconds = Math.floor(diff / 1000) % 60;
-                const minutes = Math.floor(diff / 60000) % 60;
-                const hours = Math.floor(diff / 3600000) % 24;
-                const days = Math.floor(diff / 86400000) % 30;
-                const months = Math.floor(diff / (86400000 * 30)) % 12;
-                const years = Math.floor(diff / (86400000 * 365));
-    
-                function updateElement(element, value, parentElement, previousValue, unit) {
-                    const newValue = String(value).padStart(2, '0');
-                    const currentValue = parseInt(newValue);
-    
-                    element.textContent = newValue;
-    
-                    if (unit !== 'seconds') {
-                        if (currentValue === 0 && 
-                            (unit === 'minutes' || 
-                             (unit === 'hours' && days === 0 && months === 0 && years === 0) ||
-                             (unit === 'days' && months === 0 && years === 0) ||
-                             (unit === 'months' && years === 0) ||
-                             unit === 'years')) {
-                            parentElement.style.display = 'none';
-                        } else {
-                            parentElement.style.display = '';
-                        }
-                    }
-    
-                    if (currentValue === 0) {
-                        parentElement.classList.add('zero-value');
+                    setTimeout(loadFirebaseData, 1000);
+                }, 600);
+            }, 1000);
+        }
+
+        function updateTimer() {
+            if (!startTime) return;
+            
+            const diff = new Date() - startTime;
+            const seconds = Math.floor(diff / 1000) % 60;
+            const minutes = Math.floor(diff / 60000) % 60;
+            const hours = Math.floor(diff / 3600000) % 24;
+            const days = Math.floor(diff / 86400000) % 30;
+            const months = Math.floor(diff / (86400000 * 30)) % 12;
+            const years = Math.floor(diff / (86400000 * 365));
+
+            function updateElement(element, value, parentElement, previousValue, unit) {
+                const newValue = String(value).padStart(2, '0');
+                const currentValue = parseInt(newValue);
+
+                element.textContent = newValue;
+
+                if (unit !== 'seconds') {
+                    if (currentValue === 0 && 
+                        (unit === 'minutes' || 
+                         (unit === 'hours' && days === 0 && months === 0 && years === 0) ||
+                         (unit === 'days' && months === 0 && years === 0) ||
+                         (unit === 'months' && years === 0) ||
+                         unit === 'years')) {
+                        parentElement.style.display = 'none';
                     } else {
-                        parentElement.classList.remove('zero-value');
+                        parentElement.style.display = '';
                     }
-    
-                    if (unit === 'seconds') {
-                        if (!parentElement.classList.contains('heartbeat')) {
-                            parentElement.classList.add('heartbeat');
-                        }
-                    } else if (element.textContent !== newValue) {
-                        const hasIncreased = value > previousValue || 
-                            (unit === 'minutes' && previousValue === 59 && value === 0) ||
-                            (unit === 'hours' && previousValue === 23 && value === 0) ||
-                            (unit === 'days' && previousValue === 29 && value === 0) ||
-                            (unit === 'months' && previousValue === 11 && value === 0);
-    
-                        if (hasIncreased) {
-                            parentElement.classList.remove('heartbeat');
-                            void parentElement.offsetWidth;
-                            parentElement.classList.add('heartbeat');
-                            setTimeout(() => {
-                                parentElement.classList.remove('heartbeat');
-                            }, 1000);
-                        }
-                    }
-                    
-                    previousValues[unit] = value;
                 }
-    
-                updateElement(yearsElement, years, yearsElement.parentElement, previousValues.years, 'years');
-                updateElement(monthsElement, months, monthsElement.parentElement, previousValues.months, 'months');
-                updateElement(daysElement, days, daysElement.parentElement, previousValues.days, 'days');
-                updateElement(hoursElement, hours, hoursElement.parentElement, previousValues.hours, 'hours');
-                updateElement(minutesElement, minutes, minutesElement.parentElement, previousValues.minutes, 'minutes');
-                updateElement(secondsElement, seconds, secondsElement.parentElement, previousValues.seconds, 'seconds');
-            }
-    
-            function updateTimestamp(text) {
-                if (!startTime) return;
-                const formattedDate = startTime.toLocaleString('en-IN', { 
-                    weekday: 'long',
-                    day: 'numeric',
-                    month: 'long',
-                    year: 'numeric',
-                    hour: 'numeric',
-                    minute: 'numeric',
-                    second: 'numeric',
-                    hour12: true 
-                });
-                const prefix = text.endsWith('on') ? text : `${text} on`;
-                timestampElement.innerHTML = `${prefix}<br>${formattedDate}`;
-            }
-    
-            function startTimer() {
-                if (intervalId) clearInterval(intervalId);
-                updateTimer();
-                intervalId = setInterval(updateTimer, 1000);
-            }
-    
-            function loadFirebaseData() {
-                const timeRef = ref(db, 'timer/startTime');
-                onValue(timeRef, (snapshot) => {
-                    const savedTime = snapshot.val();
-                    if (savedTime) {
-                        startTime = new Date(savedTime);
-                        updateTimestamp('You took the pledge on');
-                        buttonElement.textContent = 'I broke my pledge, start again';
-                        startTimer();
-                    }
-                });
-            }
-    
-            // Event Listeners
-            themeToggle.addEventListener('click', toggleTheme);
-    
-            buttonElement.addEventListener('click', () => {
-                if (buttonElement.textContent.includes('broke')) {
-                    showPinModal();
+
+                if (currentValue === 0) {
+                    parentElement.classList.add('zero-value');
                 } else {
-                    startTime = new Date();
-                    set(ref(db, 'timer'), {
-                        startTime: startTime.toISOString()
-                    });
+                    parentElement.classList.remove('zero-value');
+                }
+
+                if (unit === 'seconds') {
+                    if (!parentElement.classList.contains('heartbeat')) {
+                        parentElement.classList.add('heartbeat');
+                    }
+                } else if (element.textContent !== newValue) {
+                    const hasIncreased = value > previousValue || 
+                        (unit === 'minutes' && previousValue === 59 && value === 0) ||
+                        (unit === 'hours' && previousValue === 23 && value === 0) ||
+                        (unit === 'days' && previousValue === 29 && value === 0) ||
+                        (unit === 'months' && previousValue === 11 && value === 0);
+
+                    if (hasIncreased) {
+                        parentElement.classList.remove('heartbeat');
+                        void parentElement.offsetWidth;
+                        parentElement.classList.add('heartbeat');
+                        setTimeout(() => {
+                            parentElement.classList.remove('heartbeat');
+                        }, 1000);
+                    }
+                }
+                
+                previousValues[unit] = value;
+            }
+
+            updateElement(yearsElement, years, yearsElement.parentElement, previousValues.years, 'years');
+            updateElement(monthsElement, months, monthsElement.parentElement, previousValues.months, 'months');
+            updateElement(daysElement, days, daysElement.parentElement, previousValues.days, 'days');
+            updateElement(hoursElement, hours, hoursElement.parentElement, previousValues.hours, 'hours');
+            updateElement(minutesElement, minutes, minutesElement.parentElement, previousValues.minutes, 'minutes');
+            updateElement(secondsElement, seconds, secondsElement.parentElement, previousValues.seconds, 'seconds');
+        }
+
+        function updateTimestamp(text) {
+            if (!startTime) return;
+            const formattedDate = startTime.toLocaleString('en-IN', { 
+                weekday: 'long',
+                day: 'numeric',
+                month: 'long',
+                year: 'numeric',
+                hour: 'numeric',
+                minute: 'numeric',
+                second: 'numeric',
+                hour12: true 
+            });
+            const prefix = text.endsWith('on') ? text : `${text} on`;
+            timestampElement.innerHTML = `${prefix}<br>${formattedDate}`;
+        }
+
+        function startTimer() {
+            if (intervalId) clearInterval(intervalId);
+            updateTimer();
+            intervalId = setInterval(updateTimer, 1000);
+        }
+
+        function loadFirebaseData() {
+            const timeRef = ref(db, 'timer/startTime');
+            const historyRef = ref(db, 'timer/history');
+
+            onValue(timeRef, (snapshot) => {
+                const savedTime = snapshot.val();
+                if (savedTime) {
+                    startTime = new Date(savedTime);
                     updateTimestamp('You took the pledge on');
                     buttonElement.textContent = 'I broke my pledge, start again';
                     startTimer();
                 }
             });
-    
-            // PIN input handling
-            pinDigits.forEach((digit, index) => {
-                digit.addEventListener('input', (e) => {
-                    if (e.target.value.length === 1) {
-                        const nextDigit = pinDigits[index + 1];
-                        if (nextDigit) nextDigit.focus();
-                    }
-                });
-    
-                digit.addEventListener('keydown', (e) => {
-                    if (e.key === 'Backspace' && !e.target.value) {
-                        const prevDigit = pinDigits[index - 1];
-                        if (prevDigit) {
-                            prevDigit.focus();
-                            prevDigit.value = '';
-                        }
-                    }
-                });
+
+            onValue(historyRef, (snapshot) => {
+                const historyData = snapshot.val();
+                updateHistoryDisplay(historyData);
             });
-    
-            confirmPinButton.addEventListener('click', () => {
-                if (validatePin()) {
-                    hidePinModal();
-                    startTime = new Date();
-                    set(ref(db, 'timer'), {
-                        startTime: startTime.toISOString()
-                    });
-                    updateTimestamp('You took the pledge on');
-                    startTimer();
-                } else {
-                    pinError.textContent = 'Incorrect PIN';
-                    clearPinInputs();
-                    pinDigits[0].focus();
+        }
+
+        // Event Listeners
+        themeToggle.addEventListener('click', toggleTheme);
+
+        buttonElement.addEventListener('click', () => {
+            if (buttonElement.textContent.includes('broke')) {
+                showPinModal();
+            } else {
+                startTime = new Date();
+                set(ref(db, 'timer'), {
+                    startTime: startTime.toISOString(),
+                    history: {}
+                });
+                updateTimestamp('You took the pledge on');
+                buttonElement.textContent = 'I broke my pledge, start again';
+                startTimer();
+            }
+        });
+
+        // PIN input handling
+        pinDigits.forEach((digit, index) => {
+            digit.addEventListener('input', (e) => {
+                if (e.target.value.length === 1) {
+                    const nextDigit = pinDigits[index + 1];
+                    if (nextDigit) nextDigit.focus();
                 }
             });
-    
-            cancelPinButton.addEventListener('click', hidePinModal);
-            pinModal.addEventListener('click', (e) => {
-                if (e.target === pinModal) hidePinModal();
+
+            digit.addEventListener('keydown', (e) => {
+                if (e.key === 'Backspace' && !e.target.value) {
+                    const prevDigit = pinDigits[index - 1];
+                    if (prevDigit) {
+                        prevDigit.focus();
+                        prevDigit.value = '';
+                    }
+                }
             });
-    
-            // Start welcome sequence
-            document.addEventListener('DOMContentLoaded', startWelcomeSequence);
-        </script>
-    </body>
-    </html>
+        });
+
+        confirmPinButton.addEventListener('click', () => {
+            if (validatePin()) {
+                hidePinModal();
+                const newStartTime = new Date();
+                
+                // Get current history first
+                const historyRef = ref(db, 'timer/history');
+                get(historyRef).then((snapshot) => {
+                    const currentHistory = snapshot.val() || {};
+                    const newHistoryKey = new Date().getTime().toString();
+                    
+                    // Add new timestamp to history
+                    currentHistory[newHistoryKey] = newStartTime.toISOString();
+                    
+                    // Update both start time and history
+                    set(ref(db, 'timer'), {
+                        startTime: newStartTime.toISOString(),
+                        history: currentHistory
+                    });
+                    
+                    startTime = newStartTime;
+                    updateTimestamp('You took the pledge on');
+                    startTimer();
+                });
+            } else {
+                pinError.textContent = 'Incorrect PIN';
+                clearPinInputs();
+                pinDigits[0].focus();
+            }
+        });
+
+        cancelPinButton.addEventListener('click', hidePinModal);
+        pinModal.addEventListener('click', (e) => {
+            if (e.target === pinModal) hidePinModal();
+        });
+
+        // Start welcome sequence
+        document.addEventListener('DOMContentLoaded', startWelcomeSequence);
+    </script>
+</body>
+</html>
